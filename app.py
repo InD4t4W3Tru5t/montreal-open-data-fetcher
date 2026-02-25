@@ -85,7 +85,7 @@ TRANSLATIONS = {
             "4. Copy the UUID from the URL: `.../resource/<resource-id>`"
         ),
         "progress_text": "Fetched {fetched} / {total} records…",
-        "language_toggle": "🇫🇷 Français",
+        "language_toggle": "Français",
         "dataset_header": "📂 Dataset",
         "loading_total": "Checking total record count…",
         "total_records_info": "This resource contains **{total:,} rows** in total.",
@@ -166,7 +166,7 @@ TRANSLATIONS = {
             "4. Copiez l'UUID dans l'URL : `.../resource/<identifiant>`"
         ),
         "progress_text": "Récupéré {fetched} / {total} enregistrements…",
-        "language_toggle": "🇬🇧 English",
+        "language_toggle": "English",
         "dataset_header": "📂 Jeu de données",
         "loading_total": "Vérification du nombre total d'enregistrements…",
         "total_records_info": "Cette ressource contient **{total:,} lignes** au total.",
