@@ -70,7 +70,7 @@ TRANSLATIONS = {
         ),
         "progress_text": "Fetched {fetched} / {total} records…",
         "warn_no_resource": "Please enter a Resource ID.",
-        "language_toggle": "🇫🇷 Français",
+        "language_toggle": "Français",
         "dataset_name_label": "Resource ID",
     },
     "fr": {
@@ -130,7 +130,7 @@ TRANSLATIONS = {
         ),
         "progress_text": "Récupéré {fetched} / {total} enregistrements…",
         "warn_no_resource": "Veuillez entrer un identifiant de ressource.",
-        "language_toggle": "🇬🇧 English",
+        "language_toggle": "English",
         "dataset_name_label": "Identifiant de ressource",
     },
 }
