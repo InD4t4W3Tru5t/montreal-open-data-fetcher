@@ -87,8 +87,6 @@ TRANSLATIONS = {
         "progress_text": "Fetched {fetched} / {total} records…",
         "language_toggle": "🇫🇷 Français",
         "dataset_header": "📂 Dataset",
-        "click_row_hint": "💡 Click a row in the table above to select that dataset.",
-        "no_datastore": "⚠️ This resource does not appear to be available in the DataStore (not a CSV/tabular resource).",
     },
     "fr": {
         "page_title": "🗺️ Explorateur – Données ouvertes de Montréal",
@@ -165,19 +163,17 @@ TRANSLATIONS = {
         "progress_text": "Récupéré {fetched} / {total} enregistrements…",
         "language_toggle": "🇬🇧 English",
         "dataset_header": "📂 Jeu de données",
-        "click_row_hint": "💡 Cliquez sur une ligne du tableau ci-dessus pour sélectionner ce jeu de données.",
-        "no_datastore": "⚠️ Cette ressource ne semble pas disponible dans le DataStore (pas une ressource CSV/tabulaire).",
     },
 }
 
 # ── Session state ─────────────────────────────────────────────────────────────
-if "lang"              not in st.session_state: st.session_state.lang              = "en"
-if "selected_pkg_idx"  not in st.session_state: st.session_state.selected_pkg_idx  = 0
-if "selected_res_idx"  not in st.session_state: st.session_state.selected_res_idx  = 0
-if "fetch_triggered"   not in st.session_state: st.session_state.fetch_triggered   = False
-if "fetched_rid"       not in st.session_state: st.session_state.fetched_rid       = None
-if "fetched_name"      not in st.session_state: st.session_state.fetched_name      = None
-if "fetched_df"        not in st.session_state: st.session_state.fetched_df        = None
+if "lang"            not in st.session_state: st.session_state.lang            = "en"
+if "fetch_triggered" not in st.session_state: st.session_state.fetch_triggered = False
+if "fetched_rid"     not in st.session_state: st.session_state.fetched_rid     = None
+if "fetched_name"    not in st.session_state: st.session_state.fetched_name    = None
+if "fetched_df"      not in st.session_state: st.session_state.fetched_df      = None
+if "last_pkg_title"  not in st.session_state: st.session_state.last_pkg_title  = None
+if "last_res_label"  not in st.session_state: st.session_state.last_res_label  = None
 
 
 def t(key):
@@ -301,7 +297,7 @@ def fetch_all_records(resource_id, max_rows=None):
 
 
 def render_data_panel(df, resource_id, dataset_name):
-    """Shared component: preview, column info, download."""
+    """Shared component: metrics, preview, column info, download."""
     st.caption(f"{t('resource_id_caption')}: `{resource_id}`")
 
     c1, c2, c3 = st.columns(3)
@@ -416,7 +412,7 @@ if page == "browser":
         st.error(t("catalog_error"))
         st.stop()
 
-    # Filter catalog by search term
+    # Filter by search term
     if search_query:
         q = search_query.lower()
         catalog = [
@@ -432,9 +428,7 @@ if page == "browser":
         st.info(t("no_results"))
         st.stop()
 
-    # Build summary table with clickable rows
-    dataset_titles = [pkg.get("title", pkg.get("name", "N/A")) for pkg in catalog]
-
+    # Catalog summary table (display only, no click interaction)
     rows = []
     for pkg in catalog:
         org      = pkg.get("organization") or {}
@@ -446,114 +440,92 @@ if page == "browser":
             t("col_updated"):   last_mod,
         })
 
-    catalog_df = pd.DataFrame(rows)
+    catalog_df    = pd.DataFrame(rows)
+    dataset_titles = [pkg.get("title", pkg.get("name", "N/A")) for pkg in catalog]
 
-    # st.dataframe with on_select to detect row clicks
-    event = st.dataframe(
-        catalog_df,
-        use_container_width=True,
-        height=320,
-        hide_index=True,
-        on_select="rerun",
-        selection_mode="single-row",
-        key="catalog_table",
-    )
+    st.dataframe(catalog_df, use_container_width=True, height=320, hide_index=True)
 
-    # Determine selected dataset: row click takes priority, fallback to selectbox
-    selected_rows = event.selection.get("rows", []) if event and hasattr(event, "selection") else []
-    if selected_rows:
-        st.session_state.selected_pkg_idx = selected_rows[0]
-        st.session_state.selected_res_idx = 0
-        st.session_state.fetch_triggered  = False
-        st.session_state.fetched_df       = None
-
-    st.caption(t("click_row_hint"))
-
-    # Selectbox stays in sync with the clicked row
+    # Dataset selectbox
     selected_title = st.selectbox(
         label=t("select_dataset"),
         options=dataset_titles,
-        index=st.session_state.selected_pkg_idx,
         key="pkg_selectbox",
     )
 
-    # If user changes selectbox manually, update index
-    new_idx = dataset_titles.index(selected_title) if selected_title in dataset_titles else 0
-    if new_idx != st.session_state.selected_pkg_idx:
-        st.session_state.selected_pkg_idx = new_idx
-        st.session_state.selected_res_idx = 0
-        st.session_state.fetch_triggered  = False
-        st.session_state.fetched_df       = None
+    # Reset fetch state when dataset changes
+    if selected_title != st.session_state.last_pkg_title:
+        st.session_state.last_pkg_title  = selected_title
+        st.session_state.fetch_triggered = False
+        st.session_state.fetched_df      = None
+        st.session_state.last_res_label  = None
 
-    selected_pkg = catalog[st.session_state.selected_pkg_idx]
+    selected_pkg = next(
+        (p for p in catalog if p.get("title", p.get("name")) == selected_title), None
+    )
 
-    # ── Dataset detail panel ──────────────────────────────────────────────────
-    st.subheader(t("dataset_detail_title"))
+    if selected_pkg:
+        st.subheader(t("dataset_detail_title"))
 
-    notes = selected_pkg.get("notes") or ""
-    if notes:
-        with st.expander(t("col_notes"), expanded=False):
-            st.markdown(notes[:800] + ("…" if len(notes) > 800 else ""))
+        notes = selected_pkg.get("notes") or ""
+        if notes:
+            with st.expander(t("col_notes"), expanded=False):
+                st.markdown(notes[:800] + ("…" if len(notes) > 800 else ""))
 
-    resources = selected_pkg.get("resources", [])
-    st.markdown(f"**{t('resources_available')}**: {len(resources)}")
+        resources = selected_pkg.get("resources", [])
+        st.markdown(f"**{t('resources_available')}**: {len(resources)}")
 
-    if resources:
-        # Resource summary table
-        res_rows = []
-        for r in resources:
-            res_rows.append({
-                t("res_name"):   r.get("name", "N/A"),
-                t("res_format"): (r.get("format") or "N/A").upper(),
-                t("res_id"):     r.get("id", "N/A"),
-            })
-        res_df = pd.DataFrame(res_rows)
-        st.dataframe(res_df, use_container_width=True, hide_index=True)
+        if resources:
+            # Resource summary table
+            res_rows = []
+            for r in resources:
+                res_rows.append({
+                    t("res_name"):   r.get("name", "N/A"),
+                    t("res_format"): (r.get("format") or "N/A").upper(),
+                    t("res_id"):     r.get("id", "N/A"),
+                })
+            st.dataframe(pd.DataFrame(res_rows), use_container_width=True, hide_index=True)
 
-        # Resource selector — show name + format together
-        def res_label(r):
-            fmt  = (r.get("format") or "N/A").upper()
-            name = r.get("name") or r.get("id", "N/A")
-            return f"{name}  [{fmt}]"
+            # Resource selectbox — name + [FORMAT]
+            def res_label(r):
+                fmt  = (r.get("format") or "N/A").upper()
+                name = r.get("name") or r.get("id", "N/A")
+                return f"{name}  [{fmt}]"
 
-        res_labels  = [res_label(r) for r in resources]
-        selected_res_label = st.selectbox(
-            label=t("fetch_this"),
-            options=res_labels,
-            index=min(st.session_state.selected_res_idx, len(res_labels) - 1),
-            key="res_selectbox",
-        )
+            res_labels = [res_label(r) for r in resources]
 
-        selected_res_idx = res_labels.index(selected_res_label)
-        if selected_res_idx != st.session_state.selected_res_idx:
-            st.session_state.selected_res_idx = selected_res_idx
-            st.session_state.fetch_triggered  = False
-            st.session_state.fetched_df       = None
+            selected_res_label = st.selectbox(
+                label=t("fetch_this"),
+                options=res_labels,
+                key="res_selectbox",
+            )
 
-        selected_res = resources[st.session_state.selected_res_idx]
-
-        if st.button(t("fetch_this"), type="primary", use_container_width=True):
-            rid  = selected_res.get("id", "")
-            name = selected_res.get("name", rid)
-            with st.spinner(t("connecting_spinner")):
-                df = fetch_all_records(rid, max_rows=2000)
-            if df is not None:
-                st.session_state.fetch_triggered = True
-                st.session_state.fetched_rid     = rid
-                st.session_state.fetched_name    = name
-                st.session_state.fetched_df      = df
-            else:
+            # Reset fetch state when resource changes
+            if selected_res_label != st.session_state.last_res_label:
+                st.session_state.last_res_label  = selected_res_label
                 st.session_state.fetch_triggered = False
                 st.session_state.fetched_df      = None
 
-        # Render cached result so it survives widget interactions
-        if st.session_state.fetch_triggered and st.session_state.fetched_df is not None:
-            st.subheader(t("preview_header"))
-            render_data_panel(
-                st.session_state.fetched_df,
-                st.session_state.fetched_rid,
-                st.session_state.fetched_name,
-            )
+            selected_res = resources[res_labels.index(selected_res_label)]
+
+            if st.button(t("fetch_this"), type="primary", use_container_width=True):
+                rid  = selected_res.get("id", "")
+                name = selected_res.get("name", rid)
+                with st.spinner(t("connecting_spinner")):
+                    df = fetch_all_records(rid, max_rows=2000)
+                if df is not None:
+                    st.session_state.fetch_triggered = True
+                    st.session_state.fetched_rid     = rid
+                    st.session_state.fetched_name    = name
+                    st.session_state.fetched_df      = df
+
+            # Persist result across widget interactions
+            if st.session_state.fetch_triggered and st.session_state.fetched_df is not None:
+                st.subheader(t("preview_header"))
+                render_data_panel(
+                    st.session_state.fetched_df,
+                    st.session_state.fetched_rid,
+                    st.session_state.fetched_name,
+                )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
