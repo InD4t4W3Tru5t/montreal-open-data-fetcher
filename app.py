@@ -10,6 +10,38 @@ st.set_page_config(
     page_icon="🗺️",
     layout="wide",
 )
+# ── Translations ──────────────────────────────────────────────────────────────
+TRANSLATIONS = {
+    "en": {
+        "page_title": "🗺️ Montréal Open Data Explorer",
+        "page_subtitle": (
+            "Retrieve any dataset from the **[Ville de Montréal Open Data portal](https://donnees.montreal.ca)** "
+            "by entering its **Resource ID**. Preview the data directly in the app or download it as a CSV file."
+        ),
+        "sidebar_header": "⚙️ Configuration",
+        "resource_id_label": "Resource ID",
+        "resource_id_placeholder": "e.g. cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
+        "resource_id_help": "Found in the URL of any dataset on donnees.montreal.ca",
+        "limit_rows_label": "Limit rows (faster preview)",
+        "max_rows_label": "Max rows to fetch",
+        "fetch_btn": "🔍 Fetch Data",
+        "sidebar_caption": (
+            "Data source: [Données ouvertes – Ville de Montréal](https://donnees.montreal.ca)  \n"
+            "Built with Streamlit · [Source code on GitHub](https://github.com)"
+        ),
+        "dataset_header": "📂 Dataset",
+        "resource_id_caption": "Resource ID",
+        "connecting_spinner": "Connecting to the Montréal Open Data API…",
+        "error_msg": "❌ Failed to retrieve data. Please verify the Resource ID and try again.",
+        "no_records": "⚠️ No records found for this Resource ID.",
+        "rows_fetched": "Rows fetched",
+        "columns": "Columns",
+        "est_memory": "Est. memory",
+        "preview_header": "🔎 Data Preview",
+        "filter_label": "Filter rows (searches all columns)",
+        "filter_caption": "Showing {shown} matching rows out of {total}",
+        "col_info_expander": "📋 Column information",
+        "col_n
 
 # ── Header ───────────────────────────────────────────────────────────────────
 st.title("🗺️ Montréal Open Data Explorer")
