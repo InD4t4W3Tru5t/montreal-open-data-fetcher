@@ -87,6 +87,11 @@ TRANSLATIONS = {
         "progress_text": "Fetched {fetched} / {total} records…",
         "language_toggle": "🇫🇷 Français",
         "dataset_header": "📂 Dataset",
+        "loading_total": "Checking total record count…",
+        "total_records_info": "This resource contains **{total:,} rows** in total.",
+        "limit_rows_browser": "Limit rows",
+        "max_rows_browser": "Rows to fetch (out of {total:,} total)",
+        "fetch_all_warning": "Fetching all {total:,} rows may take a while depending on dataset size.",
     },
     "fr": {
         "page_title": "🗺️ Explorateur – Données ouvertes de Montréal",
@@ -163,6 +168,11 @@ TRANSLATIONS = {
         "progress_text": "Récupéré {fetched} / {total} enregistrements…",
         "language_toggle": "🇬🇧 English",
         "dataset_header": "📂 Jeu de données",
+        "loading_total": "Vérification du nombre total d'enregistrements…",
+        "total_records_info": "Cette ressource contient **{total:,} lignes** au total.",
+        "limit_rows_browser": "Limiter les lignes",
+        "max_rows_browser": "Lignes à récupérer (sur {total:,} au total)",
+        "fetch_all_warning": "Récupérer les {total:,} lignes peut prendre du temps selon la taille du jeu de données.",
     },
 }
 
@@ -174,6 +184,7 @@ if "fetched_name"    not in st.session_state: st.session_state.fetched_name    =
 if "fetched_df"      not in st.session_state: st.session_state.fetched_df      = None
 if "last_pkg_title"  not in st.session_state: st.session_state.last_pkg_title  = None
 if "last_res_label"  not in st.session_state: st.session_state.last_res_label  = None
+if "res_total_count" not in st.session_state: st.session_state.res_total_count = None
 
 
 def t(key):
@@ -218,6 +229,24 @@ def load_catalog():
     return all_packages
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def get_resource_total(resource_id):
+    """Fetch only 1 record to read the total count from the API response."""
+    try:
+        resp = requests.get(
+            BASE_URL,
+            params={"resource_id": resource_id, "limit": 1, "offset": 0},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        if data.get("success"):
+            return data["result"]["total"]
+    except Exception:
+        pass
+    return None
+
+
 def fetch_page(resource_id, offset=0, limit=PAGE_SIZE):
     params    = {"resource_id": resource_id, "limit": limit, "offset": offset}
     base_wait = 5
@@ -248,9 +277,9 @@ def fetch_resource_name(resource_id):
 
 
 def fetch_all_records(resource_id, max_rows=None):
-    all_records = []
-    total       = None
-    offset      = 0
+    all_records  = []
+    total        = None
+    offset       = 0
     progress_bar = st.progress(0, text=t("progress_text").format(fetched=0, total="?"))
 
     while True:
@@ -270,7 +299,7 @@ def fetch_all_records(resource_id, max_rows=None):
 
         all_records.extend(records)
         fetched = len(all_records)
-        pct = min(int(fetched / total * 100), 100) if total > 0 else 100
+        pct     = min(int(fetched / total * 100), 100) if total > 0 else 100
         progress_bar.progress(
             pct,
             text=t("progress_text").format(fetched=f"{fetched:,}", total=f"{total:,}"),
@@ -412,7 +441,6 @@ if page == "browser":
         st.error(t("catalog_error"))
         st.stop()
 
-    # Filter by search term
     if search_query:
         q = search_query.lower()
         catalog = [
@@ -428,7 +456,6 @@ if page == "browser":
         st.info(t("no_results"))
         st.stop()
 
-    # Catalog summary table (display only, no click interaction)
     rows = []
     for pkg in catalog:
         org      = pkg.get("organization") or {}
@@ -440,24 +467,21 @@ if page == "browser":
             t("col_updated"):   last_mod,
         })
 
-    catalog_df    = pd.DataFrame(rows)
     dataset_titles = [pkg.get("title", pkg.get("name", "N/A")) for pkg in catalog]
+    st.dataframe(pd.DataFrame(rows), use_container_width=True, height=320, hide_index=True)
 
-    st.dataframe(catalog_df, use_container_width=True, height=320, hide_index=True)
-
-    # Dataset selectbox
     selected_title = st.selectbox(
         label=t("select_dataset"),
         options=dataset_titles,
         key="pkg_selectbox",
     )
 
-    # Reset fetch state when dataset changes
     if selected_title != st.session_state.last_pkg_title:
         st.session_state.last_pkg_title  = selected_title
         st.session_state.fetch_triggered = False
         st.session_state.fetched_df      = None
         st.session_state.last_res_label  = None
+        st.session_state.res_total_count = None
 
     selected_pkg = next(
         (p for p in catalog if p.get("title", p.get("name")) == selected_title), None
@@ -475,7 +499,6 @@ if page == "browser":
         st.markdown(f"**{t('resources_available')}**: {len(resources)}")
 
         if resources:
-            # Resource summary table
             res_rows = []
             for r in resources:
                 res_rows.append({
@@ -485,7 +508,6 @@ if page == "browser":
                 })
             st.dataframe(pd.DataFrame(res_rows), use_container_width=True, hide_index=True)
 
-            # Resource selectbox — name + [FORMAT]
             def res_label(r):
                 fmt  = (r.get("format") or "N/A").upper()
                 name = r.get("name") or r.get("id", "N/A")
@@ -499,26 +521,57 @@ if page == "browser":
                 key="res_selectbox",
             )
 
-            # Reset fetch state when resource changes
             if selected_res_label != st.session_state.last_res_label:
                 st.session_state.last_res_label  = selected_res_label
                 st.session_state.fetch_triggered = False
                 st.session_state.fetched_df      = None
+                st.session_state.res_total_count = None
 
             selected_res = resources[res_labels.index(selected_res_label)]
+            rid          = selected_res.get("id", "")
+            res_name     = selected_res.get("name", rid)
+
+            # ── Fetch total count for this resource ───────────────────────
+            if st.session_state.res_total_count is None and rid:
+                with st.spinner(t("loading_total")):
+                    st.session_state.res_total_count = get_resource_total(rid)
+
+            total_count = st.session_state.res_total_count
+
+            # ── Row count selector ────────────────────────────────────────
+            if total_count and total_count > 0:
+                st.info(t("total_records_info").format(total=total_count))
+
+                limit_rows_browser = st.checkbox(
+                    t("limit_rows_browser"),
+                    value=True,
+                    key="limit_rows_browser_cb",
+                )
+
+                if limit_rows_browser:
+                    browser_max_rows = st.slider(
+                        label=t("max_rows_browser").format(total=total_count),
+                        min_value=100,
+                        max_value=total_count,
+                        value=min(2_000, total_count),
+                        step=max(100, total_count // 100),
+                        key="browser_row_slider",
+                    )
+                else:
+                    browser_max_rows = None
+                    st.warning(t("fetch_all_warning").format(total=total_count))
+            else:
+                browser_max_rows = None
 
             if st.button(t("fetch_this"), type="primary", use_container_width=True):
-                rid  = selected_res.get("id", "")
-                name = selected_res.get("name", rid)
                 with st.spinner(t("connecting_spinner")):
-                    df = fetch_all_records(rid, max_rows=2000)
+                    df = fetch_all_records(rid, max_rows=browser_max_rows)
                 if df is not None:
                     st.session_state.fetch_triggered = True
                     st.session_state.fetched_rid     = rid
-                    st.session_state.fetched_name    = name
+                    st.session_state.fetched_name    = res_name
                     st.session_state.fetched_df      = df
 
-            # Persist result across widget interactions
             if st.session_state.fetch_triggered and st.session_state.fetched_df is not None:
                 st.subheader(t("preview_header"))
                 render_data_panel(
