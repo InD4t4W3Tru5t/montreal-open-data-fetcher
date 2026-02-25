@@ -49,6 +49,7 @@ TRANSLATIONS = {
         "preview_header": "🔎 Preview",
         "download_header": "⬇️ Download",
         "download_btn": "📥 Download as CSV",
+        "download_btn_raw": "📥 Download {fmt} file",
         "download_caption": "File: `{filename}`",
         "rows_fetched": "Rows fetched",
         "columns": "Columns",
@@ -73,7 +74,9 @@ TRANSLATIONS = {
         "fetch_btn": "🔍 Fetch Data",
         "resource_id_caption": "Resource ID",
         "connecting_spinner": "Connecting to the Montréal Open Data API…",
+        "downloading_spinner": "Downloading file…",
         "error_msg": "❌ Failed to retrieve data. Please verify the Resource ID and try again.",
+        "download_error": "❌ Could not download the file. The URL may be unavailable.",
         "no_records": "⚠️ No records found for this Resource ID.",
         "warn_no_resource": "Please enter a Resource ID.",
         "idle_info": "👈 Enter a **Resource ID** and click **Fetch Data** to get started.",
@@ -85,13 +88,23 @@ TRANSLATIONS = {
             "4. Copy the UUID from the URL: `.../resource/<resource-id>`"
         ),
         "progress_text": "Fetched {fetched} / {total} records…",
-        "language_toggle": "Français",
+        "language_toggle": "🇫🇷 Français",
         "dataset_header": "📂 Dataset",
         "loading_total": "Checking total record count…",
         "total_records_info": "This resource contains **{total:,} rows** in total.",
         "limit_rows_browser": "Limit rows",
         "max_rows_browser": "Rows to fetch (out of {total:,} total)",
         "fetch_all_warning": "Fetching all {total:,} rows may take a while depending on dataset size.",
+        "non_csv_info": (
+            "ℹ️ This resource is in **{fmt}** format and cannot be previewed in-app. "
+            "You can download it directly below."
+        ),
+        "non_csv_fetcher_info": (
+            "ℹ️ This Resource ID points to a **{fmt}** file. "
+            "Direct preview is not available — you can download it below."
+        ),
+        "checking_resource": "Checking resource type…",
+        "unknown_format": "UNKNOWN",
     },
     "fr": {
         "page_title": "🗺️ Explorateur – Données ouvertes de Montréal",
@@ -129,6 +142,7 @@ TRANSLATIONS = {
         "preview_header": "🔎 Aperçu",
         "download_header": "⬇️ Téléchargement",
         "download_btn": "📥 Télécharger en CSV",
+        "download_btn_raw": "📥 Télécharger le fichier {fmt}",
         "download_caption": "Fichier : `{filename}`",
         "rows_fetched": "Lignes récupérées",
         "columns": "Colonnes",
@@ -154,7 +168,9 @@ TRANSLATIONS = {
         "fetch_btn": "🔍 Récupérer les données",
         "resource_id_caption": "Identifiant de ressource",
         "connecting_spinner": "Connexion à l'API de données ouvertes de Montréal…",
+        "downloading_spinner": "Téléchargement du fichier…",
         "error_msg": "❌ Impossible de récupérer les données. Vérifiez l'identifiant et réessayez.",
+        "download_error": "❌ Impossible de télécharger le fichier. L'URL est peut-être indisponible.",
         "no_records": "⚠️ Aucun enregistrement trouvé pour cet identifiant de ressource.",
         "warn_no_resource": "Veuillez entrer un identifiant de ressource.",
         "idle_info": "👈 Entrez un **identifiant de ressource** et cliquez sur **Récupérer les données** pour commencer.",
@@ -166,13 +182,23 @@ TRANSLATIONS = {
             "4. Copiez l'UUID dans l'URL : `.../resource/<identifiant>`"
         ),
         "progress_text": "Récupéré {fetched} / {total} enregistrements…",
-        "language_toggle": "English",
+        "language_toggle": "🇬🇧 English",
         "dataset_header": "📂 Jeu de données",
         "loading_total": "Vérification du nombre total d'enregistrements…",
         "total_records_info": "Cette ressource contient **{total:,} lignes** au total.",
         "limit_rows_browser": "Limiter les lignes",
         "max_rows_browser": "Lignes à récupérer (sur {total:,} au total)",
         "fetch_all_warning": "Récupérer les {total:,} lignes peut prendre du temps selon la taille du jeu de données.",
+        "non_csv_info": (
+            "ℹ️ Cette ressource est au format **{fmt}** et ne peut pas être prévisualisée dans l'application. "
+            "Vous pouvez la télécharger directement ci-dessous."
+        ),
+        "non_csv_fetcher_info": (
+            "ℹ️ Cet identifiant pointe vers un fichier **{fmt}**. "
+            "L'aperçu n'est pas disponible — vous pouvez le télécharger ci-dessous."
+        ),
+        "checking_resource": "Vérification du type de ressource…",
+        "unknown_format": "INCONNU",
     },
 }
 
@@ -197,14 +223,19 @@ PACKAGE_SEARCH = "https://donnees.montreal.ca/api/3/action/package_search"
 PACKAGE_URL    = "https://donnees.montreal.ca/api/3/action/resource_show"
 MAX_RETRIES    = 5
 PAGE_SIZE      = 1_000
+CSV_FORMATS    = {"CSV", "TSV", "XLS", "XLSX"}
 
 
-# ── API helpers ───────────────────────────────────────────────────────────────
+# ── Helpers ───────────────────────────────────────────────────────────────────
+def is_tabular(fmt: str) -> bool:
+    """Return True if the format can be fetched via the DataStore API."""
+    return fmt.upper() in CSV_FORMATS
+
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_catalog():
     all_packages = []
-    start = 0
-    rows  = 100
+    start, rows  = 0, 100
     while True:
         try:
             resp = requests.get(
@@ -231,7 +262,7 @@ def load_catalog():
 
 @st.cache_data(ttl=600, show_spinner=False)
 def get_resource_total(resource_id):
-    """Fetch only 1 record to read the total count from the API response."""
+    """Lightweight call to get total row count from the DataStore."""
     try:
         resp = requests.get(
             BASE_URL,
@@ -245,6 +276,52 @@ def get_resource_total(resource_id):
     except Exception:
         pass
     return None
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def get_resource_meta(resource_id):
+    """Return (format, url) for a resource ID via resource_show."""
+    try:
+        resp = requests.get(PACKAGE_URL, params={"id": resource_id}, timeout=15)
+        resp.raise_for_status()
+        data = resp.json()
+        if data.get("success"):
+            r = data["result"]
+            return (r.get("format", ""), r.get("url", ""), r.get("name", resource_id))
+    except Exception:
+        pass
+    return ("", "", resource_id)
+
+
+def download_raw_file(url: str, filename: str, fmt: str):
+    """Download a non-CSV file from its URL and offer it as a download button."""
+    try:
+        with st.spinner(t("downloading_spinner")):
+            resp = requests.get(url, timeout=60)
+            resp.raise_for_status()
+            file_bytes = resp.content
+        mime_map = {
+            "JSON":    "application/json",
+            "GEOJSON": "application/geo+json",
+            "XML":     "application/xml",
+            "SHP":     "application/zip",
+            "KML":     "application/vnd.google-earth.kml+xml",
+            "PDF":     "application/pdf",
+            "XLS":     "application/vnd.ms-excel",
+            "XLSX":    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }
+        mime = mime_map.get(fmt.upper(), "application/octet-stream")
+        st.download_button(
+            label=t("download_btn_raw").format(fmt=fmt.upper()),
+            data=file_bytes,
+            file_name=filename,
+            mime=mime,
+            use_container_width=True,
+            type="primary",
+        )
+        st.caption(t("download_caption").format(filename=filename))
+    except Exception:
+        st.error(t("download_error"))
 
 
 def fetch_page(resource_id, offset=0, limit=PAGE_SIZE):
@@ -262,18 +339,6 @@ def fetch_page(resource_id, offset=0, limit=PAGE_SIZE):
             if attempt < MAX_RETRIES - 1:
                 time.sleep(base_wait * (2 ** attempt))
     return None
-
-
-def fetch_resource_name(resource_id):
-    try:
-        resp = requests.get(PACKAGE_URL, params={"id": resource_id}, timeout=15)
-        resp.raise_for_status()
-        data = resp.json()
-        if data.get("success"):
-            return data["result"].get("name", resource_id)
-    except Exception:
-        pass
-    return resource_id
 
 
 def fetch_all_records(resource_id, max_rows=None):
@@ -326,7 +391,7 @@ def fetch_all_records(resource_id, max_rows=None):
 
 
 def render_data_panel(df, resource_id, dataset_name):
-    """Shared component: metrics, preview, column info, download."""
+    """Metrics, preview, column info, CSV download."""
     st.caption(f"{t('resource_id_caption')}: `{resource_id}`")
 
     c1, c2, c3 = st.columns(3)
@@ -513,8 +578,7 @@ if page == "browser":
                 name = r.get("name") or r.get("id", "N/A")
                 return f"{name}  [{fmt}]"
 
-            res_labels = [res_label(r) for r in resources]
-
+            res_labels         = [res_label(r) for r in resources]
             selected_res_label = st.selectbox(
                 label=t("fetch_this"),
                 options=res_labels,
@@ -530,55 +594,61 @@ if page == "browser":
             selected_res = resources[res_labels.index(selected_res_label)]
             rid          = selected_res.get("id", "")
             res_name     = selected_res.get("name", rid)
+            res_fmt      = (selected_res.get("format") or "").upper()
+            res_url      = selected_res.get("url", "")
 
-            # ── Fetch total count for this resource ───────────────────────
-            if st.session_state.res_total_count is None and rid:
-                with st.spinner(t("loading_total")):
-                    st.session_state.res_total_count = get_resource_total(rid)
+            # ── Non-tabular resource: direct download only ────────────────
+            if res_fmt and not is_tabular(res_fmt):
+                st.info(t("non_csv_info").format(fmt=res_fmt))
+                st.subheader(t("download_header"))
+                ext      = res_fmt.lower()
+                filename = f"{res_name.replace(' ', '_')}_{rid[:8]}.{ext}"
+                download_raw_file(res_url, filename, res_fmt)
 
-            total_count = st.session_state.res_total_count
+            # ── Tabular resource: fetch + preview ─────────────────────────
+            else:
+                if st.session_state.res_total_count is None and rid:
+                    with st.spinner(t("loading_total")):
+                        st.session_state.res_total_count = get_resource_total(rid)
 
-            # ── Row count selector ────────────────────────────────────────
-            if total_count and total_count > 0:
-                st.info(t("total_records_info").format(total=total_count))
+                total_count = st.session_state.res_total_count
 
-                limit_rows_browser = st.checkbox(
-                    t("limit_rows_browser"),
-                    value=True,
-                    key="limit_rows_browser_cb",
-                )
-
-                if limit_rows_browser:
-                    browser_max_rows = st.slider(
-                        label=t("max_rows_browser").format(total=total_count),
-                        min_value=100,
-                        max_value=total_count,
-                        value=min(2_000, total_count),
-                        step=max(100, total_count // 100),
-                        key="browser_row_slider",
+                if total_count and total_count > 0:
+                    st.info(t("total_records_info").format(total=total_count))
+                    limit_rows_browser = st.checkbox(
+                        t("limit_rows_browser"), value=True, key="limit_rows_browser_cb"
                     )
+                    if limit_rows_browser:
+                        browser_max_rows = st.slider(
+                            label=t("max_rows_browser").format(total=total_count),
+                            min_value=100,
+                            max_value=total_count,
+                            value=min(2_000, total_count),
+                            step=max(100, total_count // 100),
+                            key="browser_row_slider",
+                        )
+                    else:
+                        browser_max_rows = None
+                        st.warning(t("fetch_all_warning").format(total=total_count))
                 else:
                     browser_max_rows = None
-                    st.warning(t("fetch_all_warning").format(total=total_count))
-            else:
-                browser_max_rows = None
 
-            if st.button(t("fetch_this"), type="primary", use_container_width=True):
-                with st.spinner(t("connecting_spinner")):
-                    df = fetch_all_records(rid, max_rows=browser_max_rows)
-                if df is not None:
-                    st.session_state.fetch_triggered = True
-                    st.session_state.fetched_rid     = rid
-                    st.session_state.fetched_name    = res_name
-                    st.session_state.fetched_df      = df
+                if st.button(t("fetch_this"), type="primary", use_container_width=True):
+                    with st.spinner(t("connecting_spinner")):
+                        df = fetch_all_records(rid, max_rows=browser_max_rows)
+                    if df is not None:
+                        st.session_state.fetch_triggered = True
+                        st.session_state.fetched_rid     = rid
+                        st.session_state.fetched_name    = res_name
+                        st.session_state.fetched_df      = df
 
-            if st.session_state.fetch_triggered and st.session_state.fetched_df is not None:
-                st.subheader(t("preview_header"))
-                render_data_panel(
-                    st.session_state.fetched_df,
-                    st.session_state.fetched_rid,
-                    st.session_state.fetched_name,
-                )
+                if st.session_state.fetch_triggered and st.session_state.fetched_df is not None:
+                    st.subheader(t("preview_header"))
+                    render_data_panel(
+                        st.session_state.fetched_df,
+                        st.session_state.fetched_rid,
+                        st.session_state.fetched_name,
+                    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -592,13 +662,30 @@ elif page == "fetcher":
         if not resource_id_input.strip():
             st.warning(t("warn_no_resource"))
         else:
-            rid          = resource_id_input.strip()
-            dataset_name = fetch_resource_name(rid)
-            st.subheader(f"{t('dataset_header')}: `{dataset_name}`")
-            with st.spinner(t("connecting_spinner")):
-                df = fetch_all_records(rid, max_rows=max_rows)
-            if df is not None:
-                render_data_panel(df, rid, dataset_name)
+            rid = resource_id_input.strip()
+
+            # Resolve format from resource_show
+            with st.spinner(t("checking_resource")):
+                res_fmt, res_url, res_name = get_resource_meta(rid)
+
+            res_fmt_upper = res_fmt.upper() if res_fmt else ""
+
+            st.subheader(f"{t('dataset_header')}: `{res_name}`")
+
+            # ── Non-tabular: direct download ──────────────────────────────
+            if res_fmt_upper and not is_tabular(res_fmt_upper):
+                st.info(t("non_csv_fetcher_info").format(fmt=res_fmt_upper))
+                st.subheader(t("download_header"))
+                ext      = res_fmt_upper.lower()
+                filename = f"{res_name.replace(' ', '_')}_{rid[:8]}.{ext}"
+                download_raw_file(res_url, filename, res_fmt_upper)
+
+            # ── Tabular: fetch + preview ──────────────────────────────────
+            else:
+                with st.spinner(t("connecting_spinner")):
+                    df = fetch_all_records(rid, max_rows=max_rows)
+                if df is not None:
+                    render_data_panel(df, rid, res_name)
     else:
         st.info(t("idle_info"))
         st.subheader(t("how_to_header"))
