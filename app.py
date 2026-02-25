@@ -26,7 +26,6 @@ TRANSLATIONS = {
             "Data source: [Données ouvertes – Ville de Montréal](https://donnees.montreal.ca)  \n"
             "Built with Streamlit · [Source code on GitHub](https://github.com)"
         ),
-        # Browser page
         "browser_title": "📚 Dataset Browser",
         "browser_subtitle": "Browse all available datasets from the Montréal Open Data portal.",
         "search_datasets": "Search datasets",
@@ -46,7 +45,6 @@ TRANSLATIONS = {
         "res_name": "Name",
         "res_format": "Format",
         "res_id": "Resource ID",
-        "res_action": "Action",
         "fetch_this": "Fetch this resource",
         "preview_header": "🔎 Preview",
         "download_header": "⬇️ Download",
@@ -63,7 +61,6 @@ TRANSLATIONS = {
         "col_null": "Null",
         "col_dtype": "Dtype",
         "col_sample": "Sample",
-        # Fetcher page
         "fetcher_title": "🔍 Fetch by Resource ID",
         "fetcher_subtitle": (
             "Enter any Resource ID from the Montréal Open Data portal to preview and download the dataset."
@@ -90,6 +87,8 @@ TRANSLATIONS = {
         "progress_text": "Fetched {fetched} / {total} records…",
         "language_toggle": "🇫🇷 Français",
         "dataset_header": "📂 Dataset",
+        "click_row_hint": "💡 Click a row in the table above to select that dataset.",
+        "no_datastore": "⚠️ This resource does not appear to be available in the DataStore (not a CSV/tabular resource).",
     },
     "fr": {
         "page_title": "🗺️ Explorateur – Données ouvertes de Montréal",
@@ -104,7 +103,6 @@ TRANSLATIONS = {
             "Source : [Données ouvertes – Ville de Montréal](https://donnees.montreal.ca)  \n"
             "Construit avec Streamlit · [Code source sur GitHub](https://github.com)"
         ),
-        # Browser page
         "browser_title": "📚 Navigateur de données",
         "browser_subtitle": "Parcourez tous les jeux de données disponibles sur le portail de données ouvertes de Montréal.",
         "search_datasets": "Rechercher des jeux de données",
@@ -118,13 +116,12 @@ TRANSLATIONS = {
         "col_resources": "Ressources",
         "col_updated": "Dernière mise à jour",
         "col_notes": "Description",
-        "select_dataset": "Sélectionnez un jeu de données pour l'aperçu",
+        "select_dataset": "Sélectionnez un jeu de données",
         "dataset_detail_title": "📂 Détails du jeu de données",
         "resources_available": "Ressources disponibles",
         "res_name": "Nom",
         "res_format": "Format",
         "res_id": "Identifiant de ressource",
-        "res_action": "Action",
         "fetch_this": "Récupérer cette ressource",
         "preview_header": "🔎 Aperçu",
         "download_header": "⬇️ Téléchargement",
@@ -141,7 +138,6 @@ TRANSLATIONS = {
         "col_null": "Nul",
         "col_dtype": "Type",
         "col_sample": "Exemple",
-        # Fetcher page
         "fetcher_title": "🔍 Récupérer par identifiant de ressource",
         "fetcher_subtitle": (
             "Entrez n'importe quel identifiant de ressource du portail de données ouvertes de Montréal "
@@ -169,16 +165,19 @@ TRANSLATIONS = {
         "progress_text": "Récupéré {fetched} / {total} enregistrements…",
         "language_toggle": "🇬🇧 English",
         "dataset_header": "📂 Jeu de données",
+        "click_row_hint": "💡 Cliquez sur une ligne du tableau ci-dessus pour sélectionner ce jeu de données.",
+        "no_datastore": "⚠️ Cette ressource ne semble pas disponible dans le DataStore (pas une ressource CSV/tabulaire).",
     },
 }
 
 # ── Session state ─────────────────────────────────────────────────────────────
-if "lang" not in st.session_state:
-    st.session_state.lang = "en"
-if "selected_resource_id" not in st.session_state:
-    st.session_state.selected_resource_id = None
-if "active_page" not in st.session_state:
-    st.session_state.active_page = "browser"
+if "lang"              not in st.session_state: st.session_state.lang              = "en"
+if "selected_pkg_idx"  not in st.session_state: st.session_state.selected_pkg_idx  = 0
+if "selected_res_idx"  not in st.session_state: st.session_state.selected_res_idx  = 0
+if "fetch_triggered"   not in st.session_state: st.session_state.fetch_triggered   = False
+if "fetched_rid"       not in st.session_state: st.session_state.fetched_rid       = None
+if "fetched_name"      not in st.session_state: st.session_state.fetched_name      = None
+if "fetched_df"        not in st.session_state: st.session_state.fetched_df        = None
 
 
 def t(key):
@@ -186,18 +185,16 @@ def t(key):
 
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-BASE_URL        = "https://donnees.montreal.ca/api/3/action/datastore_search"
-PACKAGE_SEARCH  = "https://donnees.montreal.ca/api/3/action/package_search"
-PACKAGE_URL     = "https://donnees.montreal.ca/api/3/action/resource_show"
-MAX_RETRIES     = 5
-PAGE_SIZE       = 1_000
-CATALOG_LIMIT   = 1_000
+BASE_URL       = "https://donnees.montreal.ca/api/3/action/datastore_search"
+PACKAGE_SEARCH = "https://donnees.montreal.ca/api/3/action/package_search"
+PACKAGE_URL    = "https://donnees.montreal.ca/api/3/action/resource_show"
+MAX_RETRIES    = 5
+PAGE_SIZE      = 1_000
 
 
 # ── API helpers ───────────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_catalog():
-    """Fetch all packages from the Montreal CKAN portal (cached 1 hour)."""
     all_packages = []
     start = 0
     rows  = 100
@@ -303,15 +300,9 @@ def fetch_all_records(resource_id, max_rows=None):
     return df
 
 
-def render_data_panel(resource_id, dataset_name, max_rows=None):
-    """Shared component: fetch, preview, column info, download."""
+def render_data_panel(df, resource_id, dataset_name):
+    """Shared component: preview, column info, download."""
     st.caption(f"{t('resource_id_caption')}: `{resource_id}`")
-
-    with st.spinner(t("connecting_spinner")):
-        df = fetch_all_records(resource_id, max_rows=max_rows)
-
-    if df is None:
-        return
 
     c1, c2, c3 = st.columns(3)
     c1.metric(t("rows_fetched"), f"{len(df):,}")
@@ -380,7 +371,7 @@ with st.sidebar:
         st.divider()
         resource_id_input = st.text_input(
             label=t("resource_id_label"),
-            value=st.session_state.selected_resource_id or "cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
+            value="cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
             placeholder=t("resource_id_placeholder"),
             help=t("resource_id_help"),
         )
@@ -425,7 +416,7 @@ if page == "browser":
         st.error(t("catalog_error"))
         st.stop()
 
-    # Filter by search term
+    # Filter catalog by search term
     if search_query:
         q = search_query.lower()
         catalog = [
@@ -441,73 +432,128 @@ if page == "browser":
         st.info(t("no_results"))
         st.stop()
 
-    # Build summary table
+    # Build summary table with clickable rows
+    dataset_titles = [pkg.get("title", pkg.get("name", "N/A")) for pkg in catalog]
+
     rows = []
     for pkg in catalog:
-        resources  = pkg.get("resources", [])
-        org        = pkg.get("organization") or {}
-        last_mod   = (pkg.get("metadata_modified") or "")[:10]
+        org      = pkg.get("organization") or {}
+        last_mod = (pkg.get("metadata_modified") or "")[:10]
         rows.append({
             t("col_title"):     pkg.get("title", pkg.get("name", "N/A")),
             t("col_org"):       org.get("title", "N/A") if isinstance(org, dict) else "N/A",
-            t("col_resources"): len(resources),
+            t("col_resources"): len(pkg.get("resources", [])),
             t("col_updated"):   last_mod,
         })
 
     catalog_df = pd.DataFrame(rows)
-    st.dataframe(catalog_df, use_container_width=True, height=320, hide_index=True)
 
-    # Dataset selector
-    st.subheader(t("select_dataset"))
-    dataset_titles = [pkg.get("title", pkg.get("name", "N/A")) for pkg in catalog]
+    # st.dataframe with on_select to detect row clicks
+    event = st.dataframe(
+        catalog_df,
+        use_container_width=True,
+        height=320,
+        hide_index=True,
+        on_select="rerun",
+        selection_mode="single-row",
+        key="catalog_table",
+    )
+
+    # Determine selected dataset: row click takes priority, fallback to selectbox
+    selected_rows = event.selection.get("rows", []) if event and hasattr(event, "selection") else []
+    if selected_rows:
+        st.session_state.selected_pkg_idx = selected_rows[0]
+        st.session_state.selected_res_idx = 0
+        st.session_state.fetch_triggered  = False
+        st.session_state.fetched_df       = None
+
+    st.caption(t("click_row_hint"))
+
+    # Selectbox stays in sync with the clicked row
     selected_title = st.selectbox(
         label=t("select_dataset"),
         options=dataset_titles,
-        label_visibility="collapsed",
+        index=st.session_state.selected_pkg_idx,
+        key="pkg_selectbox",
     )
 
-    selected_pkg = next(
-        (p for p in catalog if p.get("title", p.get("name")) == selected_title), None
-    )
+    # If user changes selectbox manually, update index
+    new_idx = dataset_titles.index(selected_title) if selected_title in dataset_titles else 0
+    if new_idx != st.session_state.selected_pkg_idx:
+        st.session_state.selected_pkg_idx = new_idx
+        st.session_state.selected_res_idx = 0
+        st.session_state.fetch_triggered  = False
+        st.session_state.fetched_df       = None
 
-    if selected_pkg:
-        st.subheader(t("dataset_detail_title"))
+    selected_pkg = catalog[st.session_state.selected_pkg_idx]
 
-        notes = selected_pkg.get("notes") or ""
-        if notes:
-            with st.expander(t("col_notes"), expanded=False):
-                st.markdown(notes[:800] + ("…" if len(notes) > 800 else ""))
+    # ── Dataset detail panel ──────────────────────────────────────────────────
+    st.subheader(t("dataset_detail_title"))
 
-        resources = selected_pkg.get("resources", [])
-        st.markdown(f"**{t('resources_available')}**: {len(resources)}")
+    notes = selected_pkg.get("notes") or ""
+    if notes:
+        with st.expander(t("col_notes"), expanded=False):
+            st.markdown(notes[:800] + ("…" if len(notes) > 800 else ""))
 
-        if resources:
-            # Resource table
-            res_rows = []
-            for r in resources:
-                res_rows.append({
-                    t("res_name"):   r.get("name", "N/A"),
-                    t("res_format"): r.get("format", "N/A").upper(),
-                    t("res_id"):     r.get("id", "N/A"),
-                })
-            res_df = pd.DataFrame(res_rows)
-            st.dataframe(res_df, use_container_width=True, hide_index=True)
+    resources = selected_pkg.get("resources", [])
+    st.markdown(f"**{t('resources_available')}**: {len(resources)}")
 
-            # Pick a resource to fetch
-            res_names   = [r.get("name", r.get("id", "N/A")) for r in resources]
-            selected_res_name = st.selectbox(
-                t("fetch_this"),
-                options=res_names,
-                key="res_selector",
+    if resources:
+        # Resource summary table
+        res_rows = []
+        for r in resources:
+            res_rows.append({
+                t("res_name"):   r.get("name", "N/A"),
+                t("res_format"): (r.get("format") or "N/A").upper(),
+                t("res_id"):     r.get("id", "N/A"),
+            })
+        res_df = pd.DataFrame(res_rows)
+        st.dataframe(res_df, use_container_width=True, hide_index=True)
+
+        # Resource selector — show name + format together
+        def res_label(r):
+            fmt  = (r.get("format") or "N/A").upper()
+            name = r.get("name") or r.get("id", "N/A")
+            return f"{name}  [{fmt}]"
+
+        res_labels  = [res_label(r) for r in resources]
+        selected_res_label = st.selectbox(
+            label=t("fetch_this"),
+            options=res_labels,
+            index=min(st.session_state.selected_res_idx, len(res_labels) - 1),
+            key="res_selectbox",
+        )
+
+        selected_res_idx = res_labels.index(selected_res_label)
+        if selected_res_idx != st.session_state.selected_res_idx:
+            st.session_state.selected_res_idx = selected_res_idx
+            st.session_state.fetch_triggered  = False
+            st.session_state.fetched_df       = None
+
+        selected_res = resources[st.session_state.selected_res_idx]
+
+        if st.button(t("fetch_this"), type="primary", use_container_width=True):
+            rid  = selected_res.get("id", "")
+            name = selected_res.get("name", rid)
+            with st.spinner(t("connecting_spinner")):
+                df = fetch_all_records(rid, max_rows=2000)
+            if df is not None:
+                st.session_state.fetch_triggered = True
+                st.session_state.fetched_rid     = rid
+                st.session_state.fetched_name    = name
+                st.session_state.fetched_df      = df
+            else:
+                st.session_state.fetch_triggered = False
+                st.session_state.fetched_df      = None
+
+        # Render cached result so it survives widget interactions
+        if st.session_state.fetch_triggered and st.session_state.fetched_df is not None:
+            st.subheader(t("preview_header"))
+            render_data_panel(
+                st.session_state.fetched_df,
+                st.session_state.fetched_rid,
+                st.session_state.fetched_name,
             )
-            selected_res = next(
-                (r for r in resources if r.get("name", r.get("id")) == selected_res_name), None
-            )
-
-            if selected_res and st.button(t("fetch_this"), type="primary", use_container_width=True):
-                rid = selected_res.get("id", "")
-                st.subheader(t("preview_header"))
-                render_data_panel(rid, selected_res_name, max_rows=2000)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -524,7 +570,10 @@ elif page == "fetcher":
             rid          = resource_id_input.strip()
             dataset_name = fetch_resource_name(rid)
             st.subheader(f"{t('dataset_header')}: `{dataset_name}`")
-            render_data_panel(rid, dataset_name, max_rows=max_rows)
+            with st.spinner(t("connecting_spinner")):
+                df = fetch_all_records(rid, max_rows=max_rows)
+            if df is not None:
+                render_data_panel(df, rid, dataset_name)
     else:
         st.info(t("idle_info"))
         st.subheader(t("how_to_header"))
