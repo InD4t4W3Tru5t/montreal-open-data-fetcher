@@ -16,145 +16,216 @@ TRANSLATIONS = {
     "en": {
         "page_title": "🗺️ Montréal Open Data Explorer",
         "page_subtitle": (
-            "Retrieve any dataset from the "
-            "**[Ville de Montréal Open Data portal](https://donnees.montreal.ca)** "
-            "by entering its **Resource ID**. "
-            "Preview the data directly in the app or download it as a CSV file."
+            "Browse and download datasets from the "
+            "**[Ville de Montréal Open Data portal](https://donnees.montreal.ca)**."
         ),
         "sidebar_header": "⚙️ Configuration",
-        "resource_id_label": "Resource ID",
-        "resource_id_placeholder": "e.g. cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
-        "resource_id_help": "Found in the URL of any dataset on donnees.montreal.ca",
-        "limit_rows_label": "Limit rows (faster preview)",
-        "max_rows_label": "Max rows to fetch",
-        "fetch_btn": "🔍 Fetch Data",
+        "nav_browser": "📚 Dataset Browser",
+        "nav_fetcher": "🔍 Fetch by Resource ID",
         "sidebar_caption": (
             "Data source: [Données ouvertes – Ville de Montréal](https://donnees.montreal.ca)  \n"
             "Built with Streamlit · [Source code on GitHub](https://github.com)"
         ),
-        "dataset_header": "📂 Dataset",
-        "resource_id_caption": "Resource ID",
-        "connecting_spinner": "Connecting to the Montréal Open Data API…",
-        "error_msg": "❌ Failed to retrieve data. Please verify the Resource ID and try again.",
-        "no_records": "⚠️ No records found for this Resource ID.",
+        # Browser page
+        "browser_title": "📚 Dataset Browser",
+        "browser_subtitle": "Browse all available datasets from the Montréal Open Data portal.",
+        "search_datasets": "Search datasets",
+        "search_placeholder": "e.g. permis, travaux, accidents…",
+        "loading_catalog": "Loading dataset catalog…",
+        "catalog_error": "❌ Could not load the dataset catalog. Please try again.",
+        "results_count": "{count} dataset(s) found",
+        "no_results": "No datasets match your search.",
+        "col_title": "Title",
+        "col_org": "Organization",
+        "col_resources": "Resources",
+        "col_updated": "Last updated",
+        "col_notes": "Description",
+        "select_dataset": "Select a dataset to preview",
+        "dataset_detail_title": "📂 Dataset details",
+        "resources_available": "Resources available",
+        "res_name": "Name",
+        "res_format": "Format",
+        "res_id": "Resource ID",
+        "res_action": "Action",
+        "fetch_this": "Fetch this resource",
+        "preview_header": "🔎 Preview",
+        "download_header": "⬇️ Download",
+        "download_btn": "📥 Download as CSV",
+        "download_caption": "File: `{filename}`",
         "rows_fetched": "Rows fetched",
         "columns": "Columns",
         "est_memory": "Est. memory",
-        "preview_header": "🔎 Data Preview",
-        "filter_label": "Filter rows (searches all columns)",
-        "filter_caption": "Showing {shown} matching rows out of {total}",
+        "filter_label": "Filter rows",
+        "filter_caption": "Showing {shown} of {total} rows",
         "col_info_expander": "📋 Column information",
         "col_name": "Column",
         "col_nonnull": "Non-null",
         "col_null": "Null",
         "col_dtype": "Dtype",
         "col_sample": "Sample",
-        "download_header": "⬇️ Download",
-        "download_btn": "📥 Download as CSV",
-        "download_caption": "File will be saved as `{filename}`",
-        "idle_info": "👈 Enter a **Resource ID** in the sidebar and click **Fetch Data** to get started.",
+        # Fetcher page
+        "fetcher_title": "🔍 Fetch by Resource ID",
+        "fetcher_subtitle": (
+            "Enter any Resource ID from the Montréal Open Data portal to preview and download the dataset."
+        ),
+        "resource_id_label": "Resource ID",
+        "resource_id_placeholder": "e.g. cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
+        "resource_id_help": "Found in the URL of any dataset on donnees.montreal.ca",
+        "limit_rows_label": "Limit rows (faster preview)",
+        "max_rows_label": "Max rows to fetch",
+        "fetch_btn": "🔍 Fetch Data",
+        "resource_id_caption": "Resource ID",
+        "connecting_spinner": "Connecting to the Montréal Open Data API…",
+        "error_msg": "❌ Failed to retrieve data. Please verify the Resource ID and try again.",
+        "no_records": "⚠️ No records found for this Resource ID.",
+        "warn_no_resource": "Please enter a Resource ID.",
+        "idle_info": "👈 Enter a **Resource ID** and click **Fetch Data** to get started.",
         "how_to_header": "💡 How to find a Resource ID",
         "how_to_body": (
-            "1. Go to **[donnees.montreal.ca](https://donnees.montreal.ca)**\n"
-            "2. Search for any dataset (e.g. *Travaux*, *Permis*, *Accidents*)\n"
-            "3. Click on the dataset, then select a **resource/file**\n"
-            "4. The Resource ID appears in the page URL:\n"
-            "   `https://donnees.montreal.ca/dataset/.../resource/<resource-id>`\n"
-            "5. Paste it into the sidebar field above."
-        ),
-        "example_ids_header": "**Example Resource IDs to try:**",
-        "example_table": (
-            "| Dataset | Resource ID |\n"
-            "|---|---|\n"
-            "| Permis d\'occupation du domaine public (Travaux) | `cc41b532-f12d-40fb-9f55-eb58c9a2b12b` |"
+            "1. Use the **Dataset Browser** tab on the left\n"
+            "2. Or go to **[donnees.montreal.ca](https://donnees.montreal.ca)**\n"
+            "3. Open any dataset and click on a resource tab\n"
+            "4. Copy the UUID from the URL: `.../resource/<resource-id>`"
         ),
         "progress_text": "Fetched {fetched} / {total} records…",
-        "warn_no_resource": "Please enter a Resource ID.",
-        "language_toggle": "Français",
-        "dataset_name_label": "Resource ID",
+        "language_toggle": "🇫🇷 Français",
+        "dataset_header": "📂 Dataset",
     },
     "fr": {
         "page_title": "🗺️ Explorateur – Données ouvertes de Montréal",
         "page_subtitle": (
-            "Récupérez n'importe quel jeu de données du "
-            "**[portail de données ouvertes de la Ville de Montréal](https://donnees.montreal.ca)** "
-            "en entrant son **identifiant de ressource**. "
-            "Prévisualisez les données dans l'application ou téléchargez-les en CSV."
+            "Parcourez et téléchargez les jeux de données du "
+            "**[portail de données ouvertes de la Ville de Montréal](https://donnees.montreal.ca)**."
         ),
         "sidebar_header": "⚙️ Configuration",
-        "resource_id_label": "Identifiant de ressource",
-        "resource_id_placeholder": "ex. cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
-        "resource_id_help": "Visible dans l'URL de n'importe quel jeu de données sur donnees.montreal.ca",
-        "limit_rows_label": "Limiter les lignes (aperçu rapide)",
-        "max_rows_label": "Nombre max de lignes à récupérer",
-        "fetch_btn": "🔍 Récupérer les données",
+        "nav_browser": "📚 Navigateur de données",
+        "nav_fetcher": "🔍 Récupérer par identifiant",
         "sidebar_caption": (
             "Source : [Données ouvertes – Ville de Montréal](https://donnees.montreal.ca)  \n"
             "Construit avec Streamlit · [Code source sur GitHub](https://github.com)"
         ),
-        "dataset_header": "📂 Jeu de données",
-        "resource_id_caption": "Identifiant de ressource",
-        "connecting_spinner": "Connexion à l'API de données ouvertes de Montréal…",
-        "error_msg": "❌ Impossible de récupérer les données. Vérifiez l'identifiant de ressource et réessayez.",
-        "no_records": "⚠️ Aucun enregistrement trouvé pour cet identifiant de ressource.",
+        # Browser page
+        "browser_title": "📚 Navigateur de données",
+        "browser_subtitle": "Parcourez tous les jeux de données disponibles sur le portail de données ouvertes de Montréal.",
+        "search_datasets": "Rechercher des jeux de données",
+        "search_placeholder": "ex. permis, travaux, accidents…",
+        "loading_catalog": "Chargement du catalogue…",
+        "catalog_error": "❌ Impossible de charger le catalogue. Veuillez réessayer.",
+        "results_count": "{count} jeu(x) de données trouvé(s)",
+        "no_results": "Aucun jeu de données ne correspond à votre recherche.",
+        "col_title": "Titre",
+        "col_org": "Organisation",
+        "col_resources": "Ressources",
+        "col_updated": "Dernière mise à jour",
+        "col_notes": "Description",
+        "select_dataset": "Sélectionnez un jeu de données pour l'aperçu",
+        "dataset_detail_title": "📂 Détails du jeu de données",
+        "resources_available": "Ressources disponibles",
+        "res_name": "Nom",
+        "res_format": "Format",
+        "res_id": "Identifiant de ressource",
+        "res_action": "Action",
+        "fetch_this": "Récupérer cette ressource",
+        "preview_header": "🔎 Aperçu",
+        "download_header": "⬇️ Téléchargement",
+        "download_btn": "📥 Télécharger en CSV",
+        "download_caption": "Fichier : `{filename}`",
         "rows_fetched": "Lignes récupérées",
         "columns": "Colonnes",
         "est_memory": "Mémoire estimée",
-        "preview_header": "🔎 Aperçu des données",
-        "filter_label": "Filtrer les lignes (recherche dans toutes les colonnes)",
-        "filter_caption": "Affichage de {shown} lignes correspondantes sur {total}",
+        "filter_label": "Filtrer les lignes",
+        "filter_caption": "Affichage de {shown} lignes sur {total}",
         "col_info_expander": "📋 Informations sur les colonnes",
         "col_name": "Colonne",
         "col_nonnull": "Non-nul",
         "col_null": "Nul",
         "col_dtype": "Type",
         "col_sample": "Exemple",
-        "download_header": "⬇️ Téléchargement",
-        "download_btn": "📥 Télécharger en CSV",
-        "download_caption": "Le fichier sera enregistré sous `{filename}`",
-        "idle_info": "👈 Entrez un **identifiant de ressource** dans la barre latérale et cliquez sur **Récupérer les données** pour commencer.",
+        # Fetcher page
+        "fetcher_title": "🔍 Récupérer par identifiant de ressource",
+        "fetcher_subtitle": (
+            "Entrez n'importe quel identifiant de ressource du portail de données ouvertes de Montréal "
+            "pour prévisualiser et télécharger le jeu de données."
+        ),
+        "resource_id_label": "Identifiant de ressource",
+        "resource_id_placeholder": "ex. cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
+        "resource_id_help": "Visible dans l'URL de n'importe quel jeu de données sur donnees.montreal.ca",
+        "limit_rows_label": "Limiter les lignes (aperçu rapide)",
+        "max_rows_label": "Nombre max de lignes à récupérer",
+        "fetch_btn": "🔍 Récupérer les données",
+        "resource_id_caption": "Identifiant de ressource",
+        "connecting_spinner": "Connexion à l'API de données ouvertes de Montréal…",
+        "error_msg": "❌ Impossible de récupérer les données. Vérifiez l'identifiant et réessayez.",
+        "no_records": "⚠️ Aucun enregistrement trouvé pour cet identifiant de ressource.",
+        "warn_no_resource": "Veuillez entrer un identifiant de ressource.",
+        "idle_info": "👈 Entrez un **identifiant de ressource** et cliquez sur **Récupérer les données** pour commencer.",
         "how_to_header": "💡 Comment trouver un identifiant de ressource",
         "how_to_body": (
-            "1. Allez sur **[donnees.montreal.ca](https://donnees.montreal.ca)**\n"
-            "2. Recherchez un jeu de données (ex. *Travaux*, *Permis*, *Accidents*)\n"
-            "3. Cliquez sur le jeu de données, puis sélectionnez une **ressource/fichier**\n"
-            "4. L'identifiant de ressource apparaît dans l'URL de la page :\n"
-            "   `https://donnees.montreal.ca/dataset/.../resource/<identifiant>`\n"
-            "5. Collez-le dans le champ ci-dessus."
-        ),
-        "example_ids_header": "**Exemples d'identifiants de ressource :**",
-        "example_table": (
-            "| Jeu de données | Identifiant de ressource |\n"
-            "|---|---|\n"
-            "| Permis d\'occupation du domaine public (Travaux) | `cc41b532-f12d-40fb-9f55-eb58c9a2b12b` |"
+            "1. Utilisez l'onglet **Navigateur de données** à gauche\n"
+            "2. Ou allez sur **[donnees.montreal.ca](https://donnees.montreal.ca)**\n"
+            "3. Ouvrez un jeu de données et cliquez sur un onglet de ressource\n"
+            "4. Copiez l'UUID dans l'URL : `.../resource/<identifiant>`"
         ),
         "progress_text": "Récupéré {fetched} / {total} enregistrements…",
-        "warn_no_resource": "Veuillez entrer un identifiant de ressource.",
-        "language_toggle": "English",
-        "dataset_name_label": "Identifiant de ressource",
+        "language_toggle": "🇬🇧 English",
+        "dataset_header": "📂 Jeu de données",
     },
 }
 
 # ── Session state ─────────────────────────────────────────────────────────────
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
+if "selected_resource_id" not in st.session_state:
+    st.session_state.selected_resource_id = None
+if "active_page" not in st.session_state:
+    st.session_state.active_page = "browser"
 
 
 def t(key):
-    """Return the translated string for the active language."""
     return TRANSLATIONS[st.session_state.lang][key]
 
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-BASE_URL    = "https://donnees.montreal.ca/api/3/action/datastore_search"
-PACKAGE_URL = "https://donnees.montreal.ca/api/3/action/resource_show"
-MAX_RETRIES = 5
-PAGE_SIZE   = 1_000
+BASE_URL        = "https://donnees.montreal.ca/api/3/action/datastore_search"
+PACKAGE_SEARCH  = "https://donnees.montreal.ca/api/3/action/package_search"
+PACKAGE_URL     = "https://donnees.montreal.ca/api/3/action/resource_show"
+MAX_RETRIES     = 5
+PAGE_SIZE       = 1_000
+CATALOG_LIMIT   = 1_000
 
 
 # ── API helpers ───────────────────────────────────────────────────────────────
+@st.cache_data(ttl=3600, show_spinner=False)
+def load_catalog():
+    """Fetch all packages from the Montreal CKAN portal (cached 1 hour)."""
+    all_packages = []
+    start = 0
+    rows  = 100
+    while True:
+        try:
+            resp = requests.get(
+                PACKAGE_SEARCH,
+                params={"rows": rows, "start": start, "sort": "metadata_modified desc"},
+                timeout=30,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            if not data.get("success"):
+                break
+            results = data["result"]["results"]
+            if not results:
+                break
+            all_packages.extend(results)
+            start += len(results)
+            if start >= data["result"]["count"]:
+                break
+            time.sleep(0.2)
+        except Exception:
+            break
+    return all_packages
+
+
 def fetch_page(resource_id, offset=0, limit=PAGE_SIZE):
-    """Fetch a single paginated page from the Montreal CKAN DataStore API."""
     params    = {"resource_id": resource_id, "limit": limit, "offset": offset}
     base_wait = 5
     for attempt in range(MAX_RETRIES):
@@ -172,7 +243,6 @@ def fetch_page(resource_id, offset=0, limit=PAGE_SIZE):
 
 
 def fetch_resource_name(resource_id):
-    """Try to resolve a human-readable name for the resource."""
     try:
         resp = requests.get(PACKAGE_URL, params={"id": resource_id}, timeout=15)
         resp.raise_for_status()
@@ -185,26 +255,19 @@ def fetch_resource_name(resource_id):
 
 
 def fetch_all_records(resource_id, max_rows=None):
-    """
-    Paginate through the CKAN DataStore and return a DataFrame.
-    Stops early if max_rows is set.
-    """
     all_records = []
     total       = None
     offset      = 0
-
     progress_bar = st.progress(0, text=t("progress_text").format(fetched=0, total="?"))
 
     while True:
         data = fetch_page(resource_id, offset=offset)
-
         if data is None or not data.get("success"):
             st.error(t("error_msg"))
             progress_bar.empty()
             return None
 
         result = data["result"]
-
         if total is None:
             total = result["total"]
 
@@ -214,13 +277,11 @@ def fetch_all_records(resource_id, max_rows=None):
 
         all_records.extend(records)
         fetched = len(all_records)
-
         pct = min(int(fetched / total * 100), 100) if total > 0 else 100
         progress_bar.progress(
             pct,
             text=t("progress_text").format(fetched=f"{fetched:,}", total=f"{total:,}"),
         )
-
         offset += len(records)
 
         if max_rows and fetched >= max_rows:
@@ -228,8 +289,7 @@ def fetch_all_records(resource_id, max_rows=None):
             break
         if offset >= total:
             break
-
-        time.sleep(0.3)  # be polite to the API
+        time.sleep(0.3)
 
     progress_bar.empty()
 
@@ -238,16 +298,70 @@ def fetch_all_records(resource_id, max_rows=None):
         return None
 
     df = pd.DataFrame(all_records)
-    # Drop CKAN internal rank column when other columns exist
     if "_id" in df.columns and len(df.columns) > 1:
         df = df.drop(columns=["_id"])
     return df
 
 
+def render_data_panel(resource_id, dataset_name, max_rows=None):
+    """Shared component: fetch, preview, column info, download."""
+    st.caption(f"{t('resource_id_caption')}: `{resource_id}`")
+
+    with st.spinner(t("connecting_spinner")):
+        df = fetch_all_records(resource_id, max_rows=max_rows)
+
+    if df is None:
+        return
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric(t("rows_fetched"), f"{len(df):,}")
+    c2.metric(t("columns"),      f"{len(df.columns):,}")
+    c3.metric(t("est_memory"),   f"{df.memory_usage(deep=True).sum() / 1024:.1f} KB")
+
+    st.subheader(t("preview_header"))
+    search_term = st.text_input(t("filter_label"), value="", key=f"filter_{resource_id}")
+    if search_term:
+        mask = df.apply(
+            lambda col: col.astype(str).str.contains(search_term, case=False, na=False)
+        ).any(axis=1)
+        display_df = df[mask]
+        st.caption(t("filter_caption").format(shown=f"{len(display_df):,}", total=f"{len(df):,}"))
+    else:
+        display_df = df
+
+    st.dataframe(display_df, use_container_width=True, height=420)
+
+    with st.expander(t("col_info_expander")):
+        col_info = pd.DataFrame({
+            t("col_name"):    df.columns,
+            t("col_nonnull"): df.notna().sum().values,
+            t("col_null"):    df.isna().sum().values,
+            t("col_dtype"):   df.dtypes.astype(str).values,
+            t("col_sample"):  [
+                str(df[c].dropna().iloc[0]) if df[c].notna().any() else "N/A"
+                for c in df.columns
+            ],
+        })
+        st.dataframe(col_info, use_container_width=True, hide_index=True)
+
+    st.subheader(t("download_header"))
+    csv_buffer = io.StringIO()
+    df.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
+    csv_bytes = csv_buffer.getvalue().encode("utf-8-sig")
+    filename  = f"{dataset_name.replace(' ', '_')}_{resource_id[:8]}.csv"
+    st.download_button(
+        label=t("download_btn"),
+        data=csv_bytes,
+        file_name=filename,
+        mime="text/csv",
+        use_container_width=True,
+        type="primary",
+    )
+    st.caption(t("download_caption").format(filename=filename))
+
+
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-
-    # Language toggle — always at the very top
     if st.button(t("language_toggle"), use_container_width=True):
         st.session_state.lang = "fr" if st.session_state.lang == "en" else "en"
         st.rerun()
@@ -255,109 +369,163 @@ with st.sidebar:
     st.divider()
     st.header(t("sidebar_header"))
 
-    resource_id = st.text_input(
-        label=t("resource_id_label"),
-        value="cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
-        placeholder=t("resource_id_placeholder"),
-        help=t("resource_id_help"),
+    page = st.radio(
+        label="Navigation",
+        options=["browser", "fetcher"],
+        format_func=lambda x: t("nav_browser") if x == "browser" else t("nav_fetcher"),
+        label_visibility="collapsed",
     )
 
-    limit_rows = st.checkbox(t("limit_rows_label"), value=True)
-    max_rows   = (
-        st.slider(t("max_rows_label"), min_value=100, max_value=10_000, value=2_000, step=100)
-        if limit_rows
-        else None
-    )
-
-    fetch_btn = st.button(t("fetch_btn"), use_container_width=True, type="primary")
+    if page == "fetcher":
+        st.divider()
+        resource_id_input = st.text_input(
+            label=t("resource_id_label"),
+            value=st.session_state.selected_resource_id or "cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
+            placeholder=t("resource_id_placeholder"),
+            help=t("resource_id_help"),
+        )
+        limit_rows = st.checkbox(t("limit_rows_label"), value=True)
+        max_rows   = (
+            st.slider(t("max_rows_label"), 100, 10_000, 2_000, step=100)
+            if limit_rows else None
+        )
+        fetch_btn = st.button(t("fetch_btn"), use_container_width=True, type="primary")
+    else:
+        resource_id_input = None
+        max_rows          = None
+        fetch_btn         = False
 
     st.divider()
     st.caption(t("sidebar_caption"))
 
 
-# ── Main page ─────────────────────────────────────────────────────────────────
+# ── Main page header ──────────────────────────────────────────────────────────
 st.title(t("page_title"))
 st.markdown(t("page_subtitle"))
 st.divider()
 
-if fetch_btn:
-    if not resource_id.strip():
-        st.warning(t("warn_no_resource"))
-    else:
-        resource_id  = resource_id.strip()
-        dataset_name = fetch_resource_name(resource_id)
 
-        st.subheader(f"{t('dataset_header')}: `{dataset_name}`")
-        st.caption(f"{t('resource_id_caption')}: `{resource_id}`")
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: Dataset Browser
+# ══════════════════════════════════════════════════════════════════════════════
+if page == "browser":
+    st.subheader(t("browser_title"))
+    st.markdown(t("browser_subtitle"))
 
-        with st.spinner(t("connecting_spinner")):
-            df = fetch_all_records(resource_id, max_rows=max_rows)
+    search_query = st.text_input(
+        t("search_datasets"),
+        placeholder=t("search_placeholder"),
+        key="catalog_search",
+    )
 
-        if df is not None:
+    with st.spinner(t("loading_catalog")):
+        catalog = load_catalog()
 
-            # ── Metrics ───────────────────────────────────────────────────
-            c1, c2, c3 = st.columns(3)
-            c1.metric(t("rows_fetched"), f"{len(df):,}")
-            c2.metric(t("columns"),      f"{len(df.columns):,}")
-            c3.metric(t("est_memory"),   f"{df.memory_usage(deep=True).sum() / 1024:.1f} KB")
+    if not catalog:
+        st.error(t("catalog_error"))
+        st.stop()
 
-            # ── Data preview ──────────────────────────────────────────────
-            st.subheader(t("preview_header"))
-            search_term = st.text_input(t("filter_label"), value="")
+    # Filter by search term
+    if search_query:
+        q = search_query.lower()
+        catalog = [
+            p for p in catalog
+            if q in (p.get("title") or "").lower()
+            or q in (p.get("notes") or "").lower()
+            or any(q in (r.get("name") or "").lower() for r in p.get("resources", []))
+        ]
 
-            if search_term:
-                mask = df.apply(
-                    lambda col: col.astype(str).str.contains(search_term, case=False, na=False)
-                ).any(axis=1)
-                display_df = df[mask]
-                st.caption(
-                    t("filter_caption").format(
-                        shown=f"{len(display_df):,}",
-                        total=f"{len(df):,}",
-                    )
-                )
-            else:
-                display_df = df
+    st.caption(t("results_count").format(count=len(catalog)))
 
-            st.dataframe(display_df, use_container_width=True, height=450)
+    if not catalog:
+        st.info(t("no_results"))
+        st.stop()
 
-            # ── Column info ───────────────────────────────────────────────
-            with st.expander(t("col_info_expander")):
-                col_info = pd.DataFrame({
-                    t("col_name"):    df.columns,
-                    t("col_nonnull"): df.notna().sum().values,
-                    t("col_null"):    df.isna().sum().values,
-                    t("col_dtype"):   df.dtypes.astype(str).values,
-                    t("col_sample"):  [
-                        str(df[c].dropna().iloc[0]) if df[c].notna().any() else "N/A"
-                        for c in df.columns
-                    ],
+    # Build summary table
+    rows = []
+    for pkg in catalog:
+        resources  = pkg.get("resources", [])
+        org        = pkg.get("organization") or {}
+        last_mod   = (pkg.get("metadata_modified") or "")[:10]
+        rows.append({
+            t("col_title"):     pkg.get("title", pkg.get("name", "N/A")),
+            t("col_org"):       org.get("title", "N/A") if isinstance(org, dict) else "N/A",
+            t("col_resources"): len(resources),
+            t("col_updated"):   last_mod,
+        })
+
+    catalog_df = pd.DataFrame(rows)
+    st.dataframe(catalog_df, use_container_width=True, height=320, hide_index=True)
+
+    # Dataset selector
+    st.subheader(t("select_dataset"))
+    dataset_titles = [pkg.get("title", pkg.get("name", "N/A")) for pkg in catalog]
+    selected_title = st.selectbox(
+        label=t("select_dataset"),
+        options=dataset_titles,
+        label_visibility="collapsed",
+    )
+
+    selected_pkg = next(
+        (p for p in catalog if p.get("title", p.get("name")) == selected_title), None
+    )
+
+    if selected_pkg:
+        st.subheader(t("dataset_detail_title"))
+
+        notes = selected_pkg.get("notes") or ""
+        if notes:
+            with st.expander(t("col_notes"), expanded=False):
+                st.markdown(notes[:800] + ("…" if len(notes) > 800 else ""))
+
+        resources = selected_pkg.get("resources", [])
+        st.markdown(f"**{t('resources_available')}**: {len(resources)}")
+
+        if resources:
+            # Resource table
+            res_rows = []
+            for r in resources:
+                res_rows.append({
+                    t("res_name"):   r.get("name", "N/A"),
+                    t("res_format"): r.get("format", "N/A").upper(),
+                    t("res_id"):     r.get("id", "N/A"),
                 })
-                st.dataframe(col_info, use_container_width=True, hide_index=True)
+            res_df = pd.DataFrame(res_rows)
+            st.dataframe(res_df, use_container_width=True, hide_index=True)
 
-            # ── Download ──────────────────────────────────────────────────
-            st.subheader(t("download_header"))
-
-            csv_buffer = io.StringIO()
-            df.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
-            csv_bytes = csv_buffer.getvalue().encode("utf-8-sig")
-
-            filename = f"{dataset_name.replace(' ', '_')}_{resource_id[:8]}.csv"
-
-            st.download_button(
-                label=t("download_btn"),
-                data=csv_bytes,
-                file_name=filename,
-                mime="text/csv",
-                use_container_width=True,
-                type="primary",
+            # Pick a resource to fetch
+            res_names   = [r.get("name", r.get("id", "N/A")) for r in resources]
+            selected_res_name = st.selectbox(
+                t("fetch_this"),
+                options=res_names,
+                key="res_selector",
             )
-            st.caption(t("download_caption").format(filename=filename))
+            selected_res = next(
+                (r for r in resources if r.get("name", r.get("id")) == selected_res_name), None
+            )
 
-else:
-    # ── Idle / welcome state ──────────────────────────────────────────────────
-    st.info(t("idle_info"))
-    st.subheader(t("how_to_header"))
-    st.markdown(t("how_to_body"))
-    st.markdown(t("example_ids_header"))
-    st.markdown(t("example_table"))
+            if selected_res and st.button(t("fetch_this"), type="primary", use_container_width=True):
+                rid = selected_res.get("id", "")
+                st.subheader(t("preview_header"))
+                render_data_panel(rid, selected_res_name, max_rows=2000)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PAGE: Fetch by Resource ID
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "fetcher":
+    st.subheader(t("fetcher_title"))
+    st.markdown(t("fetcher_subtitle"))
+
+    if fetch_btn:
+        if not resource_id_input.strip():
+            st.warning(t("warn_no_resource"))
+        else:
+            rid          = resource_id_input.strip()
+            dataset_name = fetch_resource_name(rid)
+            st.subheader(f"{t('dataset_header')}: `{dataset_name}`")
+            render_data_panel(rid, dataset_name, max_rows=max_rows)
+    else:
+        st.info(t("idle_info"))
+        st.subheader(t("how_to_header"))
+        st.markdown(t("how_to_body"))
