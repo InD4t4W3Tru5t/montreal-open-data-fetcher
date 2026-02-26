@@ -1,70 +1,69 @@
 # 🗺️ Montréal Open Data Explorer
 
-A Streamlit app to browse, preview, and download datasets from the [Ville de Montréal Open Data portal](https://donnees.montreal.ca).
+A Streamlit app to browse, preview, and download datasets from the **[Ville de Montréal Open Data portal](https://donnees.montreal.ca)**.
+
+---
 
 ## Features
 
-- **Dataset Browser** — browse the full catalog, search by keyword, select a dataset and explore its resources
-- **Fetch by Resource ID** — enter any Resource ID directly to preview or download the data
-- Tabular resources (CSV, TSV, XLS, XLSX) are fetched via the CKAN DataStore API with full preview
-- Non-tabular resources (GeoJSON, JSON, XML, SHP, KML, PDF…) are downloaded directly in their original format
-- Row count displayed before fetching so you know the dataset size upfront
-- Adjustable row limit slider (based on actual total) with option to fetch everything
-- Interactive data preview with keyword filtering
-- Column metadata (null counts, data types, sample values)
-- One-click CSV download (UTF-8 BOM for Excel compatibility)
-- Paginated fetch with retry logic and rate-limit handling
-- Full French / English language toggle
+- **Dataset Browser** — browse the full catalog, search by keyword, and explore dataset details
+- **Fetch by Resource ID** — directly fetch any dataset by its CKAN resource UUID
+- **In-app preview** — paginated data table with row filtering and column info
+- **CSV download** — export any tabular dataset as a UTF-8 CSV
+- **Large file support** — ZIP, SHP, and other binary files open via a direct external link (no server buffering)
+- **Row limit slider** — control how many rows to fetch with a safe slider that guards against edge cases
+- **Bilingual UI** — toggle between 🇬🇧 English and 🇫🇷 Français at any time
 
-## Stack
+---
 
-- [Streamlit](https://streamlit.io) — web app framework
-- [Pandas](https://pandas.pydata.org) — data manipulation
-- [Requests](https://docs.python-requests.org) — HTTP calls to the CKAN API
-- [Montréal Open Data (CKAN)](https://donnees.montreal.ca) — data source
+## Pages
 
-## Getting Started
+### 📚 Dataset Browser
+1. Search the catalog by keyword
+2. Select a dataset from the dropdown — **nothing loads until you make a selection**
+3. Browse the available resources (CSV, JSON, ZIP, SHP, etc.)
+4. Select a resource — **nothing loads until you make a selection**
+5. For tabular resources: choose a row limit, then click **Fetch this resource**
+6. For binary/large files (ZIP, SHP, RAR…): a direct download link is shown — no in-app buffering
+
+### 🔍 Fetch by Resource ID
+1. Paste any resource UUID from [donnees.montreal.ca](https://donnees.montreal.ca)
+2. Optionally limit the number of rows
+3. Click **Fetch Data**
+
+---
+
+## Installation
 
 ```bash
-git clone https://github.com/<your-username>/montreal-opendata-explorer.git
-cd montreal-opendata-explorer
-
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-
-pip install -r requirements.txt
-streamlit run app.py
+pip install streamlit requests pandas
+streamlit run montreal_app.py
 ```
 
-Open your browser at **http://localhost:8501**.
+---
 
-## Deploy on Streamlit Community Cloud
+## Configuration
 
-1. Push this repo to GitHub (public)
-2. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub
-3. Click **New app**, select your repo, set main file to `app.py`
-4. Click **Deploy**
+| Constant | Default | Description |
+|---|---|---|
+| `PAGE_SIZE` | `1000` | Rows fetched per API call |
+| `MAX_RETRIES` | `5` | Retry attempts with exponential backoff |
+| `SLIDER_THRESHOLD` | `101` | Minimum rows required to display the limit slider |
+| `LINK_ONLY_FORMATS` | `ZIP, SHP, RAR, 7Z, TAR, GZ` | Formats served as a direct external link |
+| `CSV_FORMATS` | `CSV, TSV, XLS, XLSX` | Formats fetched via the DataStore API |
 
-## How to Find a Resource ID
+---
 
-1. Use the **Dataset Browser** tab directly in the app
-2. Or browse [donnees.montreal.ca](https://donnees.montreal.ca), open a dataset, and copy the UUID from the URL: `.../resource/<resource-id>`
+## Data Source
 
-### Example
+[Données ouvertes – Ville de Montréal](https://donnees.montreal.ca)  
+API base URL: `https://donnees.montreal.ca/api/3/action/`
 
-| Dataset | Resource ID |
-|---|---|
-| Permis d'occupation du domaine public | `cc41b532-f12d-40fb-9f55-eb58c9a2b12b` |
+---
 
-## Project Structure
+## Changelog
 
-```
-montreal-opendata-explorer/
-├── app.py              # Main Streamlit application
-├── requirements.txt    # Python dependencies
-└── README.md           # This file
-```
-
-## License
-
-MIT
+### Latest
+- Empty selectboxes by default — no auto-fetch on page load
+- ZIP / SHP / binary files now use a direct external link instead of server-side buffering (prevents crash)
+- `safe_slider()` guards against `min == max` edge case on small datasets
