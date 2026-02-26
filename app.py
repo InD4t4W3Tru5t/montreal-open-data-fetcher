@@ -316,7 +316,7 @@ def download_raw_file(url: str, filename: str, fmt: str):
             data=file_bytes,
             file_name=filename,
             mime=mime,
-            use_container_width=True,
+            use_container_width='stretch',
             type="primary",
         )
         st.caption(t("download_caption").format(filename=filename))
@@ -410,7 +410,7 @@ def render_data_panel(df, resource_id, dataset_name):
     else:
         display_df = df
 
-    st.dataframe(display_df, use_container_width=True, height=420)
+    st.dataframe(display_df, use_container_width='stretch', height=420)
 
     with st.expander(t("col_info_expander")):
         col_info = pd.DataFrame({
@@ -423,7 +423,7 @@ def render_data_panel(df, resource_id, dataset_name):
                 for c in df.columns
             ],
         })
-        st.dataframe(col_info, use_container_width=True, hide_index=True)
+        st.dataframe(col_info, use_container_width='stretch', hide_index=True)
 
     st.subheader(t("download_header"))
     csv_buffer = io.StringIO()
@@ -443,7 +443,7 @@ def render_data_panel(df, resource_id, dataset_name):
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    if st.button(t("language_toggle"), use_container_width=True):
+    if st.button(t("language_toggle"), use_container_width='stretch'):
         st.session_state.lang = "fr" if st.session_state.lang == "en" else "en"
         st.rerun()
 
@@ -533,7 +533,7 @@ if page == "browser":
         })
 
     dataset_titles = [pkg.get("title", pkg.get("name", "N/A")) for pkg in catalog]
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, height=320, hide_index=True)
+    st.dataframe(pd.DataFrame(rows), use_container_width='stretch', height=320, hide_index=True)
 
     selected_title = st.selectbox(
         label=t("select_dataset"),
@@ -571,7 +571,7 @@ if page == "browser":
                     t("res_format"): (r.get("format") or "N/A").upper(),
                     t("res_id"):     r.get("id", "N/A"),
                 })
-            st.dataframe(pd.DataFrame(res_rows), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(res_rows), use_container_width='stretch', hide_index=True)
 
             def res_label(r):
                 fmt  = (r.get("format") or "N/A").upper()
@@ -633,7 +633,7 @@ if page == "browser":
                 else:
                     browser_max_rows = None
 
-                if st.button(t("fetch_this"), type="primary", use_container_width=True):
+                if st.button(t("fetch_this"), type="primary", use_container_width='stretch'):
                     with st.spinner(t("connecting_spinner")):
                         df = fetch_all_records(rid, max_rows=browser_max_rows)
                     if df is not None:
