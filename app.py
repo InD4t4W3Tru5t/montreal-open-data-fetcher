@@ -224,12 +224,31 @@ PACKAGE_URL    = "https://donnees.montreal.ca/api/3/action/resource_show"
 MAX_RETRIES    = 5
 PAGE_SIZE      = 1_000
 CSV_FORMATS    = {"CSV", "TSV", "XLS", "XLSX"}
+SLIDER_THRESHOLD = 101
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def is_tabular(fmt: str) -> bool:
-    """Return True if the format can be fetched via the DataStore API."""
     return fmt.upper() in CSV_FORMATS
+
+
+def safe_slider(total: int):
+    if total < SLIDER_THRESHOLD:
+        return None
+    slider_min  = 100
+    slider_max  = total
+    slider_val  = min(2_000, total)
+    slider_step = max(1, total // 100)
+    if slider_min >= slider_max:
+        return None
+    return st.slider(
+        label=t("max_rows_browser").format(total=total),
+        min_value=slider_min,
+        max_value=slider_max,
+        value=slider_val,
+        step=slider_step,
+        key="browser_row_slider",
+    )
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -262,7 +281,6 @@ def load_catalog():
 
 @st.cache_data(ttl=600, show_spinner=False)
 def get_resource_total(resource_id):
-    """Lightweight call to get total row count from the DataStore."""
     try:
         resp = requests.get(
             BASE_URL,
@@ -280,7 +298,6 @@ def get_resource_total(resource_id):
 
 @st.cache_data(ttl=600, show_spinner=False)
 def get_resource_meta(resource_id):
-    """Return (format, url) for a resource ID via resource_show."""
     try:
         resp = requests.get(PACKAGE_URL, params={"id": resource_id}, timeout=15)
         resp.raise_for_status()
@@ -294,7 +311,6 @@ def get_resource_meta(resource_id):
 
 
 def download_raw_file(url: str, filename: str, fmt: str):
-    """Download a non-CSV file from its URL and offer it as a download button."""
     try:
         with st.spinner(t("downloading_spinner")):
             resp = requests.get(url, timeout=60)
@@ -316,7 +332,7 @@ def download_raw_file(url: str, filename: str, fmt: str):
             data=file_bytes,
             file_name=filename,
             mime=mime,
-            use_container_width='stretch',
+            width="stretch",
             type="primary",
         )
         st.caption(t("download_caption").format(filename=filename))
@@ -391,7 +407,6 @@ def fetch_all_records(resource_id, max_rows=None):
 
 
 def render_data_panel(df, resource_id, dataset_name):
-    """Metrics, preview, column info, CSV download."""
     st.caption(f"{t('resource_id_caption')}: `{resource_id}`")
 
     c1, c2, c3 = st.columns(3)
@@ -410,7 +425,7 @@ def render_data_panel(df, resource_id, dataset_name):
     else:
         display_df = df
 
-    st.dataframe(display_df, use_container_width='stretch', height=420)
+    st.dataframe(display_df, width="stretch", height=420)
 
     with st.expander(t("col_info_expander")):
         col_info = pd.DataFrame({
@@ -423,7 +438,7 @@ def render_data_panel(df, resource_id, dataset_name):
                 for c in df.columns
             ],
         })
-        st.dataframe(col_info, use_container_width='stretch', hide_index=True)
+        st.dataframe(col_info, width="stretch", hide_index=True)
 
     st.subheader(t("download_header"))
     csv_buffer = io.StringIO()
@@ -435,7 +450,7 @@ def render_data_panel(df, resource_id, dataset_name):
         data=csv_bytes,
         file_name=filename,
         mime="text/csv",
-        use_container_width=True,
+        width="stretch",
         type="primary",
     )
     st.caption(t("download_caption").format(filename=filename))
@@ -443,7 +458,7 @@ def render_data_panel(df, resource_id, dataset_name):
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    if st.button(t("language_toggle"), use_container_width='stretch'):
+    if st.button(t("language_toggle"), width="stretch"):
         st.session_state.lang = "fr" if st.session_state.lang == "en" else "en"
         st.rerun()
 
@@ -470,7 +485,7 @@ with st.sidebar:
             st.slider(t("max_rows_label"), 100, 10_000, 2_000, step=100)
             if limit_rows else None
         )
-        fetch_btn = st.button(t("fetch_btn"), use_container_width=True, type="primary")
+        fetch_btn = st.button(t("fetch_btn"), width="stretch", type="primary")
     else:
         resource_id_input = None
         max_rows          = None
@@ -533,7 +548,7 @@ if page == "browser":
         })
 
     dataset_titles = [pkg.get("title", pkg.get("name", "N/A")) for pkg in catalog]
-    st.dataframe(pd.DataFrame(rows), use_container_width='stretch', height=320, hide_index=True)
+    st.dataframe(pd.DataFrame(rows), width="stretch", height=320, hide_index=True)
 
     selected_title = st.selectbox(
         label=t("select_dataset"),
@@ -571,7 +586,7 @@ if page == "browser":
                     t("res_format"): (r.get("format") or "N/A").upper(),
                     t("res_id"):     r.get("id", "N/A"),
                 })
-            st.dataframe(pd.DataFrame(res_rows), use_container_width='stretch', hide_index=True)
+            st.dataframe(pd.DataFrame(res_rows), width="stretch", hide_index=True)
 
             def res_label(r):
                 fmt  = (r.get("format") or "N/A").upper()
@@ -597,7 +612,6 @@ if page == "browser":
             res_fmt      = (selected_res.get("format") or "").upper()
             res_url      = selected_res.get("url", "")
 
-            # ── Non-tabular resource: direct download only ────────────────
             if res_fmt and not is_tabular(res_fmt):
                 st.info(t("non_csv_info").format(fmt=res_fmt))
                 st.subheader(t("download_header"))
@@ -605,7 +619,6 @@ if page == "browser":
                 filename = f"{res_name.replace(' ', '_')}_{rid[:8]}.{ext}"
                 download_raw_file(res_url, filename, res_fmt)
 
-            # ── Tabular resource: fetch + preview ─────────────────────────
             else:
                 if st.session_state.res_total_count is None and rid:
                     with st.spinner(t("loading_total")):
@@ -619,21 +632,14 @@ if page == "browser":
                         t("limit_rows_browser"), value=True, key="limit_rows_browser_cb"
                     )
                     if limit_rows_browser:
-                        browser_max_rows = st.slider(
-                            label=t("max_rows_browser").format(total=total_count),
-                            min_value=100,
-                            max_value=total_count,
-                            value=min(2_000, total_count),
-                            step=max(100, total_count // 100),
-                            key="browser_row_slider",
-                        )
+                        browser_max_rows = safe_slider(total_count)
                     else:
                         browser_max_rows = None
                         st.warning(t("fetch_all_warning").format(total=total_count))
                 else:
                     browser_max_rows = None
 
-                if st.button(t("fetch_this"), type="primary", use_container_width='stretch'):
+                if st.button(t("fetch_this"), type="primary", width="stretch"):
                     with st.spinner(t("connecting_spinner")):
                         df = fetch_all_records(rid, max_rows=browser_max_rows)
                     if df is not None:
@@ -664,7 +670,6 @@ elif page == "fetcher":
         else:
             rid = resource_id_input.strip()
 
-            # Resolve format from resource_show
             with st.spinner(t("checking_resource")):
                 res_fmt, res_url, res_name = get_resource_meta(rid)
 
@@ -672,7 +677,6 @@ elif page == "fetcher":
 
             st.subheader(f"{t('dataset_header')}: `{res_name}`")
 
-            # ── Non-tabular: direct download ──────────────────────────────
             if res_fmt_upper and not is_tabular(res_fmt_upper):
                 st.info(t("non_csv_fetcher_info").format(fmt=res_fmt_upper))
                 st.subheader(t("download_header"))
@@ -680,7 +684,6 @@ elif page == "fetcher":
                 filename = f"{res_name.replace(' ', '_')}_{rid[:8]}.{ext}"
                 download_raw_file(res_url, filename, res_fmt_upper)
 
-            # ── Tabular: fetch + preview ──────────────────────────────────
             else:
                 with st.spinner(t("connecting_spinner")):
                     df = fetch_all_records(rid, max_rows=max_rows)
