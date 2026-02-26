@@ -32,38 +32,27 @@ TRANSLATIONS = {
         "catalog_error": "❌ Could not load the dataset catalog. Please try again.",
         "results_count": "{count} dataset(s) found",
         "no_results": "No datasets match your search.",
-        "col_title": "Title",
-        "col_org": "Organization",
-        "col_resources": "Resources",
-        "col_updated": "Last updated",
-        "col_notes": "Description",
+        "col_title": "Title", "col_org": "Organization",
+        "col_resources": "Resources", "col_updated": "Last updated", "col_notes": "Description",
         "select_dataset": "Select a dataset to preview",
         "dataset_detail_title": "📂 Dataset details",
         "resources_available": "Resources available",
-        "res_name": "Name",
-        "res_format": "Format",
-        "res_id": "Resource ID",
+        "res_name": "Name", "res_format": "Format", "res_id": "Resource ID",
         "fetch_this": "Select a resource to fetch",
-        "preview_header": "🔎 Preview",
-        "download_header": "⬇️ Download",
+        "preview_header": "🔎 Preview", "download_header": "⬇️ Download",
         "download_btn": "📥 Download as CSV",
         "download_btn_raw": "📥 Download {fmt} file",
         "download_caption": "File: `{filename}`",
-        "rows_fetched": "Rows fetched",
-        "columns": "Columns",
-        "est_memory": "Est. memory",
+        "download_link_label": "🔗 Open / Download {fmt} file (external link)",
+        "download_link_caption": "Large file — opens directly in your browser or triggers a download.",
+        "rows_fetched": "Rows fetched", "columns": "Columns", "est_memory": "Est. memory",
         "filter_label": "Filter rows",
         "filter_caption": "Showing {shown} of {total} rows",
         "col_info_expander": "📋 Column information",
-        "col_name": "Column",
-        "col_nonnull": "Non-null",
-        "col_null": "Null",
-        "col_dtype": "Dtype",
-        "col_sample": "Sample",
+        "col_name": "Column", "col_nonnull": "Non-null", "col_null": "Null",
+        "col_dtype": "Dtype", "col_sample": "Sample",
         "fetcher_title": "🔍 Fetch by Resource ID",
-        "fetcher_subtitle": (
-            "Enter any Resource ID from the Montréal Open Data portal to preview and download the dataset."
-        ),
+        "fetcher_subtitle": "Enter any Resource ID from the Montréal Open Data portal to preview and download the dataset.",
         "resource_id_label": "Resource ID",
         "resource_id_placeholder": "e.g. cc41b532-f12d-40fb-9f55-eb58c9a2b12b",
         "resource_id_help": "Found in the URL of any dataset on donnees.montreal.ca",
@@ -96,14 +85,8 @@ TRANSLATIONS = {
         "limit_rows_browser": "Limit rows",
         "max_rows_browser": "Rows to fetch (out of {total:,} total)",
         "fetch_all_warning": "Fetching all {total:,} rows may take a while depending on dataset size.",
-        "non_csv_info": (
-            "ℹ️ This resource is in **{fmt}** format and cannot be previewed in-app. "
-            "You can download it directly below."
-        ),
-        "non_csv_fetcher_info": (
-            "ℹ️ This Resource ID points to a **{fmt}** file. "
-            "Direct preview is not available — you can download it below."
-        ),
+        "non_csv_info": "ℹ️ This resource is in **{fmt}** format and cannot be previewed in-app. You can download it directly below.",
+        "non_csv_fetcher_info": "ℹ️ This Resource ID points to a **{fmt}** file. Direct preview is not available — you can download it below.",
         "checking_resource": "Checking resource type…",
         "unknown_format": "UNKNOWN",
     },
@@ -128,34 +111,25 @@ TRANSLATIONS = {
         "catalog_error": "❌ Impossible de charger le catalogue. Veuillez réessayer.",
         "results_count": "{count} jeu(x) de données trouvé(s)",
         "no_results": "Aucun jeu de données ne correspond à votre recherche.",
-        "col_title": "Titre",
-        "col_org": "Organisation",
-        "col_resources": "Ressources",
-        "col_updated": "Dernière mise à jour",
-        "col_notes": "Description",
+        "col_title": "Titre", "col_org": "Organisation",
+        "col_resources": "Ressources", "col_updated": "Dernière mise à jour", "col_notes": "Description",
         "select_dataset": "Sélectionnez un jeu de données",
         "dataset_detail_title": "📂 Détails du jeu de données",
         "resources_available": "Ressources disponibles",
-        "res_name": "Nom",
-        "res_format": "Format",
-        "res_id": "Identifiant de ressource",
+        "res_name": "Nom", "res_format": "Format", "res_id": "Identifiant de ressource",
         "fetch_this": "Sélectionnez une ressource",
-        "preview_header": "🔎 Aperçu",
-        "download_header": "⬇️ Téléchargement",
+        "preview_header": "🔎 Aperçu", "download_header": "⬇️ Téléchargement",
         "download_btn": "📥 Télécharger en CSV",
         "download_btn_raw": "📥 Télécharger le fichier {fmt}",
         "download_caption": "Fichier : `{filename}`",
-        "rows_fetched": "Lignes récupérées",
-        "columns": "Colonnes",
-        "est_memory": "Mémoire estimée",
+        "download_link_label": "🔗 Ouvrir / Télécharger le fichier {fmt} (lien externe)",
+        "download_link_caption": "Fichier volumineux — s'ouvre directement dans votre navigateur ou déclenche un téléchargement.",
+        "rows_fetched": "Lignes récupérées", "columns": "Colonnes", "est_memory": "Mémoire estimée",
         "filter_label": "Filtrer les lignes",
         "filter_caption": "Affichage de {shown} lignes sur {total}",
         "col_info_expander": "📋 Informations sur les colonnes",
-        "col_name": "Colonne",
-        "col_nonnull": "Non-nul",
-        "col_null": "Nul",
-        "col_dtype": "Type",
-        "col_sample": "Exemple",
+        "col_name": "Colonne", "col_nonnull": "Non-nul", "col_null": "Nul",
+        "col_dtype": "Type", "col_sample": "Exemple",
         "fetcher_title": "🔍 Récupérer par identifiant de ressource",
         "fetcher_subtitle": (
             "Entrez n'importe quel identifiant de ressource du portail de données ouvertes de Montréal "
@@ -193,14 +167,8 @@ TRANSLATIONS = {
         "limit_rows_browser": "Limiter les lignes",
         "max_rows_browser": "Lignes à récupérer (sur {total:,} au total)",
         "fetch_all_warning": "Récupérer les {total:,} lignes peut prendre du temps selon la taille du jeu de données.",
-        "non_csv_info": (
-            "ℹ️ Cette ressource est au format **{fmt}** et ne peut pas être prévisualisée dans l'application. "
-            "Vous pouvez la télécharger directement ci-dessous."
-        ),
-        "non_csv_fetcher_info": (
-            "ℹ️ Cet identifiant pointe vers un fichier **{fmt}**. "
-            "L'aperçu n'est pas disponible — vous pouvez le télécharger ci-dessous."
-        ),
+        "non_csv_info": "ℹ️ Cette ressource est au format **{fmt}** et ne peut pas être prévisualisée dans l'application. Vous pouvez la télécharger directement ci-dessous.",
+        "non_csv_fetcher_info": "ℹ️ Cet identifiant pointe vers un fichier **{fmt}**. L'aperçu n'est pas disponible — vous pouvez le télécharger ci-dessous.",
         "checking_resource": "Vérification du type de ressource…",
         "unknown_format": "INCONNU",
     },
@@ -223,10 +191,15 @@ PACKAGE_URL      = "https://donnees.montreal.ca/api/3/action/resource_show"
 MAX_RETRIES      = 5
 PAGE_SIZE        = 1_000
 CSV_FORMATS      = {"CSV", "TSV", "XLS", "XLSX"}
+LINK_ONLY_FORMATS = {"ZIP", "SHP", "RAR", "7Z", "TAR", "GZ"}
 SLIDER_THRESHOLD = 101
 
 def is_tabular(fmt: str) -> bool:
     return fmt.upper() in CSV_FORMATS
+
+def is_link_only(fmt: str) -> bool:
+    """Large binary formats — never buffer through Streamlit memory."""
+    return fmt.upper() in LINK_ONLY_FORMATS
 
 def safe_slider(total: int):
     if total < SLIDER_THRESHOLD:
@@ -288,7 +261,26 @@ def get_resource_meta(resource_id):
     except Exception: pass
     return ("", "", resource_id)
 
+def render_external_link(url: str, fmt: str):
+    """Direct hyperlink for large binary files — avoids loading into Streamlit memory."""
+    st.markdown(
+        f'''<a href="{url}" target="_blank" rel="noopener noreferrer"
+            style="display:inline-block;padding:0.45em 1em;background:#0068C9;
+                   color:white;border-radius:6px;text-decoration:none;font-weight:600;">
+            {t("download_link_label").format(fmt=fmt.upper())}
+        </a>''',
+        unsafe_allow_html=True,
+    )
+    st.caption(t("download_link_caption"))
+
 def download_raw_file(url: str, filename: str, fmt: str):
+    """
+    For large binary formats (ZIP/SHP/etc.) → render a direct external link.
+    For smaller files → buffer and offer as a Streamlit download button.
+    """
+    if is_link_only(fmt):
+        render_external_link(url, fmt)
+        return
     try:
         with st.spinner(t("downloading_spinner")):
             resp = requests.get(url, timeout=60)
@@ -296,9 +288,8 @@ def download_raw_file(url: str, filename: str, fmt: str):
             file_bytes = resp.content
         mime_map = {
             "JSON": "application/json", "GEOJSON": "application/geo+json",
-            "XML": "application/xml", "SHP": "application/zip",
-            "KML": "application/vnd.google-earth.kml+xml", "PDF": "application/pdf",
-            "XLS": "application/vnd.ms-excel",
+            "XML": "application/xml", "KML": "application/vnd.google-earth.kml+xml",
+            "PDF": "application/pdf", "XLS": "application/vnd.ms-excel",
             "XLSX": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         }
         mime = mime_map.get(fmt.upper(), "application/octet-stream")
@@ -397,7 +388,6 @@ def render_data_panel(df, resource_id, dataset_name):
     )
     st.caption(t("download_caption").format(filename=filename))
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     if st.button(t("language_toggle"), use_container_width=True):
         st.session_state.lang = "fr" if st.session_state.lang == "en" else "en"
@@ -429,9 +419,6 @@ st.title(t("page_title"))
 st.markdown(t("page_subtitle"))
 st.divider()
 
-# ══════════════════════════════════════════════════════════════════════════════
-# PAGE: Dataset Browser
-# ══════════════════════════════════════════════════════════════════════════════
 if page == "browser":
     st.subheader(t("browser_title"))
     st.markdown(t("browser_subtitle"))
@@ -465,16 +452,10 @@ if page == "browser":
     dataset_titles = [pkg.get("title", pkg.get("name", "N/A")) for pkg in catalog]
     st.dataframe(pd.DataFrame(rows), use_container_width=True, height=320, hide_index=True)
 
-    # ✅ FIX: index=None so nothing is pre-selected on load
     selected_title = st.selectbox(
-        label=t("select_dataset"),
-        options=dataset_titles,
-        index=None,
-        placeholder=t("select_dataset"),
-        key="pkg_selectbox",
+        label=t("select_dataset"), options=dataset_titles,
+        index=None, placeholder=t("select_dataset"), key="pkg_selectbox",
     )
-
-    # Only proceed when user has made a selection
     if selected_title is None:
         st.info(t("idle_browser"))
         st.stop()
@@ -496,7 +477,6 @@ if page == "browser":
                 st.markdown(notes[:800] + ("…" if len(notes) > 800 else ""))
         resources = selected_pkg.get("resources", [])
         st.markdown(f"**{t('resources_available')}**: {len(resources)}")
-
         if resources:
             res_rows = [{
                 t("res_name"):   r.get("name", "N/A"),
@@ -511,17 +491,10 @@ if page == "browser":
                 return f"{name}  [{fmt}]"
 
             res_labels = [res_label(r) for r in resources]
-
-            # ✅ FIX: index=None so resource selector also starts empty
             selected_res_label = st.selectbox(
-                label=t("fetch_this"),
-                options=res_labels,
-                index=None,
-                placeholder=t("fetch_this"),
-                key="res_selectbox",
+                label=t("fetch_this"), options=res_labels,
+                index=None, placeholder=t("fetch_this"), key="res_selectbox",
             )
-
-            # Only proceed when user has picked a resource
             if selected_res_label is None:
                 st.info(t("idle_resource"))
                 st.stop()
@@ -570,9 +543,6 @@ if page == "browser":
                     st.subheader(t("preview_header"))
                     render_data_panel(st.session_state.fetched_df, st.session_state.fetched_rid, st.session_state.fetched_name)
 
-# ══════════════════════════════════════════════════════════════════════════════
-# PAGE: Fetch by Resource ID
-# ══════════════════════════════════════════════════════════════════════════════
 elif page == "fetcher":
     st.subheader(t("fetcher_title"))
     st.markdown(t("fetcher_subtitle"))
