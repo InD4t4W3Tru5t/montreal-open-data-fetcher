@@ -12,7 +12,7 @@ A Streamlit app to browse, preview, and download datasets from the **[Ville de M
 - **CSV download** — export any tabular dataset as a UTF-8 CSV
 - **Large file support** — ZIP, SHP, and other binary files open via a direct external link (no server buffering)
 - **Row limit slider** — control how many rows to fetch with a safe slider that guards against edge cases
-- **Bilingual UI** — toggle between 🇬🇧 English and 🇫🇷 Français at any time
+- **Bilingual UI** — toggle between English and Français at any time
 
 ---
 
